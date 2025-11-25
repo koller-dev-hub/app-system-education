@@ -4,11 +4,11 @@ import (
 	"time"
 
 	permission_event "github.com/williamkoller/system-education/internal/permission/domain/event"
-	sharedEvent "github.com/williamkoller/system-education/shared/domain/event"
+	shared_event "github.com/williamkoller/system-education/shared/domain/event"
 )
 
 type Permission struct {
-	sharedEvent.AggregateRoot
+	shared_event.AggregateRoot
 	ID          string
 	UserID      string
 	Modules     []string
@@ -123,7 +123,7 @@ func (p *Permission) GetUpdatedAt() time.Time {
 	return p.UpdatedAt
 }
 
-func (p *Permission) PullDomainEvents() []sharedEvent.Event {
+func (p *Permission) PullDomainEvents() []shared_event.Event {
 	if p == nil {
 		return nil
 	}
