@@ -13,3 +13,4 @@ ignore:
   - 'internal/**/port/**'
   - 'internal/**/infra/db/model/**'
   - 'pkg/**'
+  - 'shared/**'
