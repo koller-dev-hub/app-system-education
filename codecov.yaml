@@ -1,0 +1,15 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 90%
+        threshold: 2%
+
+ignore:
+  - 'cmd/**'
+  - 'internal/**/presentation/dtos/**'
+  - 'internal/**/presentation/router/**'
+  - 'internal/**/presentation/handler/**'
+  - 'internal/**/port/**'
+  - 'internal/**/infra/db/model/**'
+  - 'pkg/**'
