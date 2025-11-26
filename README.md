@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/github/williamkoller/payment-system/graph/badge.svg?token=NXB84FNDRR)](https://codecov.io/github/williamkoller/payment-system)
+[![codecov](https://codecov.io/github/koller-dev-hub/app-system-education/branch/main/graph/badge.svg?token=HAGUMBM8N7)](https://codecov.io/github/koller-dev-hub/app-system-education)
 # Payment Education
 
 ## Deploy com Helm
