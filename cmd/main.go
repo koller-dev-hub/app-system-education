@@ -16,6 +16,7 @@ import (
 	"github.com/williamkoller/system-education/config"
 	auth_router "github.com/williamkoller/system-education/internal/auth/presentation/router"
 	permission_router "github.com/williamkoller/system-education/internal/permission/presentation/router"
+	school_router "github.com/williamkoller/system-education/internal/school/presentation/router"
 	user_router "github.com/williamkoller/system-education/internal/user/presentation/router"
 	"github.com/williamkoller/system-education/shared/middleware"
 )
@@ -33,9 +34,11 @@ func main() {
 	g := gin.Default()
 	g.Use(gin.Recovery())
 	g.Use(middleware.GlobalErrorHandler())
+	g.Use(middleware.CORSMiddleware())
 	user_router.UserRouter(g, database, cfg.Resend.ApiKey, cfg.Resend.FromAddress, cfg.Secret, cfg.ExpiresIn)
 	auth_router.AuthRouter(g, database, cfg.Secret, cfg.ExpiresIn)
 	permission_router.PermissionRouter(g, database, cfg.Secret, cfg.ExpiresIn)
+	school_router.SchoolRouter(g, database)
 
 	address := ":" + strconv.Itoa(cfg.App.Port)
 	srv := &http.Server{

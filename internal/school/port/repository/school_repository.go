@@ -7,7 +7,7 @@ import (
 )
 
 type SchoolRepository interface {
-	Create(s *school_entity.School) (*school_entity.School, error)
+	Save(s *school_entity.School) (*school_entity.School, error)
 	Update(id string, s *school_entity.School) (*school_entity.School, error)
 	Delete(id string) error
 	FindAll() ([]*school_entity.School, error)

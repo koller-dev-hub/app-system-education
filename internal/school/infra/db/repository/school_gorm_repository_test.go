@@ -52,7 +52,7 @@ func (s *SchoolGormRepositorySuite) TestCreate() {
 		UpdatedAt:   time.Now(),
 	}
 
-	createdSchool, err := s.repository.Create(school)
+	createdSchool, err := s.repository.Save(school)
 
 	s.NoError(err)
 	s.NotNil(createdSchool)
@@ -70,7 +70,7 @@ func (s *SchoolGormRepositorySuite) TestCreate_Error() {
 	sqlDB, _ := s.db.DB()
 	sqlDB.Close()
 
-	createdSchool, err := s.repository.Create(school)
+	createdSchool, err := s.repository.Save(school)
 
 	s.Error(err)
 	s.Nil(createdSchool)
@@ -84,7 +84,7 @@ func (s *SchoolGormRepositorySuite) TestUpdate() {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	created, _ := s.repository.Create(school)
+	created, _ := s.repository.Save(school)
 
 	created.Name = "Updated School Name"
 	updatedSchool, err := s.repository.Update(created.ID, created)
@@ -117,7 +117,7 @@ func (s *SchoolGormRepositorySuite) TestUpdate_DBError() {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	created, _ := s.repository.Create(school)
+	created, _ := s.repository.Save(school)
 
 	sqlDB, _ := s.db.DB()
 	sqlDB.Close()
@@ -136,7 +136,7 @@ func (s *SchoolGormRepositorySuite) TestDelete() {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	created, _ := s.repository.Create(school)
+	created, _ := s.repository.Save(school)
 
 	err := s.repository.Delete(created.ID)
 
@@ -168,8 +168,8 @@ func (s *SchoolGormRepositorySuite) TestDelete_DBError() {
 func (s *SchoolGormRepositorySuite) TestFindAll() {
 	school1 := &school_entity.School{ID: "school-7", Name: "School 1", CreatedAt: time.Now(), UpdatedAt: time.Now()}
 	school2 := &school_entity.School{ID: "school-8", Name: "School 2", CreatedAt: time.Now(), UpdatedAt: time.Now()}
-	s.repository.Create(school1)
-	s.repository.Create(school2)
+	s.repository.Save(school1)
+	s.repository.Save(school2)
 
 	schools, err := s.repository.FindAll()
 
@@ -194,7 +194,7 @@ func (s *SchoolGormRepositorySuite) TestFindById() {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	created, _ := s.repository.Create(school)
+	created, _ := s.repository.Save(school)
 
 	foundSchool, err := s.repository.FindById(created.ID)
 

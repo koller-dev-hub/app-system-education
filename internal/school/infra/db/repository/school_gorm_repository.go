@@ -17,7 +17,7 @@ func NewSchoolGormRepository(db *gorm.DB) *SchoolGormRepository {
 
 var _ port_school_repository.SchoolRepository = &SchoolGormRepository{}
 
-func (r *SchoolGormRepository) Create(s *school_entity.School) (*school_entity.School, error) {
+func (r *SchoolGormRepository) Save(s *school_entity.School) (*school_entity.School, error) {
 	model := school_model.FromEntity(s)
 	if err := r.db.Create(&model).Error; err != nil {
 		return nil, err

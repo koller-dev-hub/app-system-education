@@ -52,6 +52,18 @@ func ValidationSchool(s *School) (*School, error) {
 		errs = append(errs, "email is required")
 	}
 
+	if !strings.Contains(s.Email, "@") {
+		errs = append(errs, "email is invalid")
+	}
+
+	if !s.IsActive {
+		errs = append(errs, "is active is required")
+	}
+
+	if strings.TrimSpace(s.Description) == "" {
+		errs = append(errs, "description is required")
+	}
+
 	if len(errs) > 0 {
 		return nil, &ValidationError{Errors: errs}
 	}
@@ -62,40 +74,8 @@ func ValidationSchool(s *School) (*School, error) {
 func ValidationUpdateSchool(s *School) (*School, error) {
 	var errs []string
 
-	if s.Name == "" {
-		errs = append(errs, "name is required")
-	}
-
-	if s.Code == "" {
-		errs = append(errs, "code is required")
-	}
-
-	if s.Address == "" {
-		errs = append(errs, "address is required")
-	}
-
-	if s.City == "" {
-		errs = append(errs, "city is required")
-	}
-
-	if s.State == "" {
-		errs = append(errs, "state is required")
-	}
-
-	if s.ZipCode == "" {
-		errs = append(errs, "zip code is required")
-	}
-
-	if s.Country == "" {
-		errs = append(errs, "country is required")
-	}
-
-	if s.PhoneNumber == "" {
-		errs = append(errs, "phone number is required")
-	}
-
-	if s.Email == "" {
-		errs = append(errs, "email is required")
+	if !strings.Contains(s.Email, "@") {
+		errs = append(errs, "email is invalid")
 	}
 
 	if len(errs) > 0 {

@@ -61,3 +61,27 @@ func (s *School) PullDomainEvents() []shared_event.Event {
 	}
 	return s.AggregateRoot.PullDomainEvents()
 }
+
+func (s *School) UpdateSchool(name *string, code *string, address *string, city *string, state *string, zipCode *string, country *string, phoneNumber *string, email *string, isActive *bool, description *string) error {
+	s.Name = *name
+	s.Code = *code
+	s.Address = *address
+	s.City = *city
+	s.State = *state
+	s.ZipCode = *zipCode
+	s.Country = *country
+	s.PhoneNumber = *phoneNumber
+	s.Email = *email
+	s.IsActive = *isActive
+	s.Description = *description
+	s.UpdatedAt = time.Now()
+
+	vs, err := ValidationSchool(s)
+	if err != nil {
+		return err
+	}
+
+	s.AddDomainEvent(school_event.NewSchoolUpdatedEvent(s.ID, vs.Name, vs.Code, vs.Address, vs.City, vs.State, vs.ZipCode, vs.Country, vs.PhoneNumber, vs.Email, vs.IsActive, vs.Description))
+
+	return nil
+}
