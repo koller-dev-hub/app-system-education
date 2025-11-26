@@ -48,4 +48,4 @@ jobs:
           flags: unittests
           verbose: true
           fail_ci_if_error: true
-          slug: williamkoller/system-system
+          slug: koller-dev-hub/app-system-education
