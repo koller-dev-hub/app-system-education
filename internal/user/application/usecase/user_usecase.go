@@ -28,9 +28,13 @@ func NewUserUsecase(repo port_user_repository.UserRepository, crypto port_crypto
 var _ port_user_usecase.UserUsecase = &UserUsecase{}
 
 func (u *UserUsecase) Create(ctx context.Context, input dtos.AddUserDto) (*user_entity.User, error) {
-    existingUser, err := u.repo.FindByEmail(ctx, input.Email)
+	existingUser, err := u.repo.FindByEmail(ctx, input.Email)
 
-	if err == nil && existingUser != nil {
+	if err != nil {
+		if !errors.Is(err, port_user_repository.ErrUserNotFound) {
+			return nil, fmt.Errorf("failed to check existing user: %w", err)
+		}
+	} else if existingUser != nil {
 		return nil, port_user_repository.ErrUserAlreadyExists
 	}
 

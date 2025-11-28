@@ -1,16 +1,16 @@
 package user_repository_test
 
 import (
-    "context"
-    "testing"
+	"context"
+	"testing"
 
-    "github.com/stretchr/testify/assert"
-    user_model "github.com/williamkoller/system-education/internal/user/infra/db/model"
-    user_repository "github.com/williamkoller/system-education/internal/user/infra/db/repository"
-    "gorm.io/driver/sqlite"
-    "gorm.io/gorm"
-
-    user_entity "github.com/williamkoller/system-education/internal/user/domain/entity"
+	"github.com/stretchr/testify/assert"
+	user_entity "github.com/williamkoller/system-education/internal/user/domain/entity"
+	user_model "github.com/williamkoller/system-education/internal/user/infra/db/model"
+	user_repository "github.com/williamkoller/system-education/internal/user/infra/db/repository"
+	port_user_repository "github.com/williamkoller/system-education/internal/user/port/repository"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 func setupTestDB(t *testing.T) *gorm.DB {
@@ -39,13 +39,13 @@ func TestUserGormRepository_SaveAndFindByEmail_Success(t *testing.T) {
 	}
 
 	// salvar
-    saved, err := repo.Save(context.Background(), u)
+	saved, err := repo.Save(context.Background(), u)
 	assert.NoError(t, err)
 	assert.NotNil(t, saved)
 	assert.Equal(t, u.Email, saved.Email)
 
 	// buscar por email
-    found, err := repo.FindByEmail(context.Background(), u.Email)
+	found, err := repo.FindByEmail(context.Background(), u.Email)
 	assert.NoError(t, err)
 	assert.NotNil(t, found)
 	assert.Equal(t, u.Email, found.Email)
@@ -57,10 +57,11 @@ func TestUserGormRepository_FindByEmail_NotFound(t *testing.T) {
 	repo := user_repository.NewUserGormRepository(db)
 
 	// buscar email que não existe
-    found, err := repo.FindByEmail(context.Background(), "unknown@example.com")
+	found, err := repo.FindByEmail(context.Background(), "unknown@example.com")
 	// dependendo de como você trata “não encontrado”, GORM retorna gorm.ErrRecordNotFound
 	// você pode verificar com errors.Is(err, gorm.ErrRecordNotFound)
 	assert.Error(t, err)
+	assert.Equal(t, port_user_repository.ErrUserNotFound, err)
 	assert.Nil(t, found)
 }
 
@@ -69,10 +70,11 @@ func TestUserGormRepository_FindByID_NotFound(t *testing.T) {
 	repo := user_repository.NewUserGormRepository(db)
 
 	// buscar email que não existe
-    found, err := repo.FindByID(context.Background(), "id‑123")
+	found, err := repo.FindByID(context.Background(), "id‑123")
 	// dependendo de como você trata “não encontrado”, GORM retorna gorm.ErrRecordNotFound
 	// você pode verificar com errors.Is(err, gorm.ErrRecordNotFound)
 	assert.Error(t, err)
+	assert.Equal(t, port_user_repository.ErrUserNotFound, err)
 	assert.Nil(t, found)
 }
 
@@ -83,12 +85,12 @@ func TestUserGormRepository_FindAll(t *testing.T) {
 	// inserir 2 usuários
 	u1 := &user_entity.User{ID: "id1", Name: "A", Surname: "B", Nickname: "a", Age: 20, Email: "a@example.com", Password: "p1"}
 	u2 := &user_entity.User{ID: "id2", Name: "C", Surname: "D", Nickname: "c", Age: 30, Email: "c@example.com", Password: "p2"}
-    _, err := repo.Save(context.Background(), u1)
+	_, err := repo.Save(context.Background(), u1)
 	assert.NoError(t, err)
-    _, err = repo.Save(context.Background(), u2)
+	_, err = repo.Save(context.Background(), u2)
 	assert.NoError(t, err)
 
-    all, err := repo.FindAll(context.Background())
+	all, err := repo.FindAll(context.Background())
 	assert.NoError(t, err)
 	assert.Len(t, all, 2)
 }
@@ -99,8 +101,8 @@ func TestUserGormRepository_Delete(t *testing.T) {
 
 	u1 := &user_entity.User{ID: "id1", Name: "A", Surname: "B", Nickname: "a", Age: 20, Email: "a@example.com", Password: "p1"}
 
-    _, _ = repo.Save(context.Background(), u1)
-    err := repo.Delete(context.Background(), "id1")
+	_, _ = repo.Save(context.Background(), u1)
+	err := repo.Delete(context.Background(), "id1")
 	assert.NoError(t, err)
 
 }
@@ -111,10 +113,10 @@ func TestUserGormRepository_Update(t *testing.T) {
 
 	u1 := &user_entity.User{ID: "id1", Name: "A", Surname: "B", Nickname: "a", Age: 20, Email: "a@example.com", Password: "p1"}
 
-    _, _ = repo.Save(context.Background(), u1)
+	_, _ = repo.Save(context.Background(), u1)
 	updateU := &user_entity.User{ID: u1.ID, Name: "AA", Surname: "Bbb", Nickname: "aaa", Age: 21, Email: "aa@example.com", Password: "p1"}
 
-    userUpdate, err := repo.Update(context.Background(), "id1", updateU)
+	userUpdate, err := repo.Update(context.Background(), "id1", updateU)
 	assert.NoError(t, err)
 	assert.NotNil(t, userUpdate)
 
@@ -134,7 +136,7 @@ func TestUserGormRepository_Save_Success(t *testing.T) {
 		Password: "hashed-password",
 	}
 
-    saved, err := repo.Save(context.Background(), u)
+	saved, err := repo.Save(context.Background(), u)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, saved)
@@ -156,11 +158,11 @@ func TestUserGormRepository_FindByID_Success(t *testing.T) {
 		Email:    "jane@example.com",
 		Password: "pass123",
 	}
-    _, err := repo.Save(context.Background(), u)
+	_, err := repo.Save(context.Background(), u)
 	assert.NoError(t, err)
 
 	// Now find it
-    found, err := repo.FindByID(context.Background(), "find-id-123")
+	found, err := repo.FindByID(context.Background(), "find-id-123")
 
 	assert.NoError(t, err)
 	assert.NotNil(t, found)
@@ -177,15 +179,15 @@ func TestUserGormRepository_FindAll_Success(t *testing.T) {
 	u2 := &user_entity.User{ID: "user2", Name: "User", Surname: "Two", Nickname: "u2", Age: 30, Email: "user2@example.com", Password: "p2"}
 	u3 := &user_entity.User{ID: "user3", Name: "User", Surname: "Three", Nickname: "u3", Age: 40, Email: "user3@example.com", Password: "p3"}
 
-    _, err := repo.Save(context.Background(), u1)
+	_, err := repo.Save(context.Background(), u1)
 	assert.NoError(t, err)
-    _, err = repo.Save(context.Background(), u2)
+	_, err = repo.Save(context.Background(), u2)
 	assert.NoError(t, err)
-    _, err = repo.Save(context.Background(), u3)
+	_, err = repo.Save(context.Background(), u3)
 	assert.NoError(t, err)
 
 	// Find all
-    all, err := repo.FindAll(context.Background())
+	all, err := repo.FindAll(context.Background())
 
 	assert.NoError(t, err)
 	assert.NotNil(t, all)
@@ -197,7 +199,7 @@ func TestUserGormRepository_FindAll_Empty(t *testing.T) {
 	repo := user_repository.NewUserGormRepository(db)
 
 	// Find all on empty database
-    all, err := repo.FindAll(context.Background())
+	all, err := repo.FindAll(context.Background())
 
 	assert.NoError(t, err)
 	assert.NotNil(t, all)
@@ -218,7 +220,7 @@ func TestUserGormRepository_Update_Success(t *testing.T) {
 		Email:    "original@example.com",
 		Password: "oldpass",
 	}
-    _, err := repo.Save(context.Background(), original)
+	_, err := repo.Save(context.Background(), original)
 	assert.NoError(t, err)
 
 	// Update the user
@@ -232,14 +234,13 @@ func TestUserGormRepository_Update_Success(t *testing.T) {
 		Password: "newpass",
 	}
 
-    result, err := repo.Update(context.Background(), "update-id-123", updated)
+	result, err := repo.Update(context.Background(), "update-id-123", updated)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, "Updated", result.Name)
 	assert.Equal(t, "updated@example.com", result.Email)
 }
-
 
 func TestUserGormRepository_Save_Error(t *testing.T) {
 	db := setupTestDB(t)
@@ -260,7 +261,7 @@ func TestUserGormRepository_Save_Error(t *testing.T) {
 		Password: "pass123",
 	}
 
-    saved, err := repo.Save(context.Background(), u)
+	saved, err := repo.Save(context.Background(), u)
 
 	assert.Error(t, err)
 	assert.Nil(t, saved)
@@ -275,7 +276,7 @@ func TestUserGormRepository_FindAll_Error(t *testing.T) {
 	assert.NoError(t, err)
 	sqlDB.Close()
 
-    users, err := repo.FindAll(context.Background())
+	users, err := repo.FindAll(context.Background())
 
 	assert.Error(t, err)
 	assert.Nil(t, users)
@@ -300,7 +301,7 @@ func TestUserGormRepository_Update_Error(t *testing.T) {
 		Password: "newpass",
 	}
 
-    result, err := repo.Update(context.Background(), "test-id", updated)
+	result, err := repo.Update(context.Background(), "test-id", updated)
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -323,7 +324,7 @@ func TestUserGormRepository_Save_DuplicateID(t *testing.T) {
 	}
 
 	// Save first user
-    _, err := repo.Save(context.Background(), u1)
+	_, err := repo.Save(context.Background(), u1)
 	assert.NoError(t, err)
 
 	// Try to save another user with same ID
@@ -337,7 +338,7 @@ func TestUserGormRepository_Save_DuplicateID(t *testing.T) {
 		Password: "pass456",
 	}
 
-    _, err = repo.Save(context.Background(), u2)
+	_, err = repo.Save(context.Background(), u2)
 	// Should get error due to duplicate primary key
 	assert.Error(t, err)
 }
@@ -354,13 +355,13 @@ func TestUserGormRepository_FindAll_MultipleUsers(t *testing.T) {
 		{ID: "u4", Name: "User4", Surname: "S4", Nickname: "n4", Age: 35, Email: "u4@test.com", Password: "p4"},
 	}
 
-    for _, u := range users {
-        _, err := repo.Save(context.Background(), u)
-        assert.NoError(t, err)
-    }
+	for _, u := range users {
+		_, err := repo.Save(context.Background(), u)
+		assert.NoError(t, err)
+	}
 
 	// Find all
-    all, err := repo.FindAll(context.Background())
+	all, err := repo.FindAll(context.Background())
 
 	assert.NoError(t, err)
 	assert.NotNil(t, all)
@@ -382,7 +383,7 @@ func TestUserGormRepository_Update_NonExistentUser(t *testing.T) {
 		Password: "newpass",
 	}
 
-    result, err := repo.Update(context.Background(), "non-existent", updated)
+	result, err := repo.Update(context.Background(), "non-existent", updated)
 
 	// GORM doesn't return error for updates that affect 0 rows
 	assert.NoError(t, err)

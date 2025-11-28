@@ -121,6 +121,33 @@ func TestCreate_Success(t *testing.T) {
 	mockCrypto.AssertExpectations(t)
 }
 
+func TestCreate_FindByEmailError(t *testing.T) {
+	mockRepo := new(MockUserRepository)
+	mockCrypto := new(MockBcryptAdapter)
+	mockEvent := new(MockEvent)
+
+	usecase := user_usecase.NewUserUsecase(mockRepo, mockCrypto, mockEvent)
+
+	input := dtos.AddUserDto{
+		Name:     "Alice",
+		Surname:  "Silva",
+		Nickname: "ali",
+		Age:      30,
+		Email:    "alice@example.com",
+		Password: "secure123",
+	}
+
+	mockRepo.On("FindByEmail", mock.Anything, input.Email).Return(nil, errors.New("db connection error"))
+
+	user, err := usecase.Create(context.Background(), input)
+
+	assert.Nil(t, user)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to check existing user")
+	assert.Contains(t, err.Error(), "db connection error")
+	mockRepo.AssertExpectations(t)
+}
+
 func TestCreate_AlreadyExists(t *testing.T) {
 	mockRepo := new(MockUserRepository)
 	mockCrypto := new(MockBcryptAdapter)

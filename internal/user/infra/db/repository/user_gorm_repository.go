@@ -3,6 +3,8 @@ package user_repository
 import (
 	"context"
 
+	"errors"
+
 	userEntity "github.com/williamkoller/system-education/internal/user/domain/entity"
 	user_model "github.com/williamkoller/system-education/internal/user/infra/db/model"
 	portUserRepository "github.com/williamkoller/system-education/internal/user/port/repository"
@@ -32,6 +34,9 @@ func (r *UserGormRepository) FindByID(ctx context.Context, id string) (*userEnti
 	var user *userEntity.User
 
 	if err := r.db.WithContext(ctx).First(&user, "id = ?", id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, portUserRepository.ErrUserNotFound
+		}
 		return nil, err
 	}
 
@@ -57,6 +62,9 @@ func (r *UserGormRepository) FindByEmail(ctx context.Context, email string) (*us
 	model := user_model.FromEntity(user)
 
 	if err := r.db.WithContext(ctx).First(&model, "email = ?", email).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, portUserRepository.ErrUserNotFound
+		}
 		return nil, err
 	}
 
