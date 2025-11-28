@@ -38,7 +38,7 @@ func main() {
 	user_router.UserRouter(g, database, cfg.Resend.ApiKey, cfg.Resend.FromAddress, cfg.Secret, cfg.ExpiresIn)
 	auth_router.AuthRouter(g, database, cfg.Secret, cfg.ExpiresIn)
 	permission_router.PermissionRouter(g, database, cfg.Secret, cfg.ExpiresIn)
-	school_router.SchoolRouter(g, database)
+	school_router.SchoolRouter(g, database, cfg.Secret, cfg.ExpiresIn)
 
 	address := ":" + strconv.Itoa(cfg.App.Port)
 	srv := &http.Server{

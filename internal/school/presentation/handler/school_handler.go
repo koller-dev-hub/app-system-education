@@ -1,11 +1,13 @@
 package school_handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	school_mapper "github.com/williamkoller/system-education/internal/school/application/mapper"
 	port_school_handler "github.com/williamkoller/system-education/internal/school/port/handler"
+	port_school_repository "github.com/williamkoller/system-education/internal/school/port/repository"
 	port_school_usecase "github.com/williamkoller/system-education/internal/school/port/usecase"
 	school_dtos "github.com/williamkoller/system-education/internal/school/presentation/dtos"
 )
@@ -30,7 +32,7 @@ func (s *SchoolHandler) CreateSchool(c *gin.Context) {
 		return
 	}
 
-    school, err := s.usecase.Create(c.Request.Context(), input)
+	school, err := s.usecase.Create(c.Request.Context(), input)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
@@ -38,12 +40,12 @@ func (s *SchoolHandler) CreateSchool(c *gin.Context) {
 	}
 
 	resp := school_mapper.ToSchoolResponse(school)
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusCreated, resp)
 
 }
 
 func (s *SchoolHandler) FindAllSchool(c *gin.Context) {
-    schools, err := s.usecase.FindAll(c.Request.Context())
+	schools, err := s.usecase.FindAll(c.Request.Context())
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
@@ -54,9 +56,14 @@ func (s *SchoolHandler) FindAllSchool(c *gin.Context) {
 }
 
 func (s *SchoolHandler) FindByIdSchool(c *gin.Context) {
-    id := c.Param("id")
-    school, err := s.usecase.FindById(c.Request.Context(), id)
+	id := c.Param("id")
+	school, err := s.usecase.FindById(c.Request.Context(), id)
 	if err != nil {
+		if errors.Is(err, port_school_repository.ErrNotFound) {
+			c.Status(http.StatusNotFound)
+			c.Error(err).SetType(gin.ErrorTypePublic)
+			return
+		}
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
 		return
@@ -74,8 +81,13 @@ func (s *SchoolHandler) UpdateSchool(c *gin.Context) {
 		return
 	}
 
-    school, err := s.usecase.Update(c.Request.Context(), id, input)
+	school, err := s.usecase.Update(c.Request.Context(), id, input)
 	if err != nil {
+		if errors.Is(err, port_school_repository.ErrNotFound) {
+			c.Status(http.StatusNotFound)
+			c.Error(err).SetType(gin.ErrorTypePublic)
+			return
+		}
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
 		return
@@ -86,8 +98,13 @@ func (s *SchoolHandler) UpdateSchool(c *gin.Context) {
 
 func (s *SchoolHandler) DeleteSchool(c *gin.Context) {
 	id := c.Param("id")
-    err := s.usecase.Delete(c.Request.Context(), id)
+	err := s.usecase.Delete(c.Request.Context(), id)
 	if err != nil {
+		if errors.Is(err, port_school_repository.ErrNotFound) {
+			c.Status(http.StatusNotFound)
+			c.Error(err).SetType(gin.ErrorTypePublic)
+			return
+		}
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
 		return
