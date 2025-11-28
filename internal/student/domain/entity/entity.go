@@ -92,100 +92,117 @@ func NewStudent(s *Student) (*Student, error) {
 }
 
 func (s *Student) Update(
-	personalInfo *PersonalInfo,
-	address *AddressInfo,
-	school *SchoolInfo,
-	guardian *GuardianInfo,
+	fullName *string,
+	enrollmentCode *string,
+	email *string,
+	phoneNumber *string,
+	dateOfBirth *time.Time,
+	cpf *string,
+	rg *string,
+	address *string,
+	city *string,
+	state *string,
+	zipCode *string,
+	country *string,
+	schoolID *string,
+	schoolName *string,
+	schoolCode *string,
+	grade *string,
+	classRoom *string,
+	shift *string,
+	enrollmentDate *time.Time,
+	guardianName *string,
+	guardianPhone *string,
+	guardianEmail *string,
+	guardianCPF *string,
 	isActive *bool,
 	observations *string,
 ) error {
-	if personalInfo != nil {
-		if personalInfo.FullName != "" {
-			s.PersonalInfo.FullName = personalInfo.FullName
-		}
-		if personalInfo.EnrollmentCode != "" {
-			s.PersonalInfo.EnrollmentCode = personalInfo.EnrollmentCode
-		}
-		if personalInfo.Email != "" {
-			s.PersonalInfo.Email = personalInfo.Email
-		}
-		if personalInfo.PhoneNumber != "" {
-			s.PersonalInfo.PhoneNumber = personalInfo.PhoneNumber
-		}
-		if !personalInfo.DateOfBirth.IsZero() {
-			s.PersonalInfo.DateOfBirth = personalInfo.DateOfBirth
-		}
-		if personalInfo.CPF != "" {
-			s.PersonalInfo.CPF = personalInfo.CPF
-		}
-		if personalInfo.RG != "" {
-			s.PersonalInfo.RG = personalInfo.RG
-		}
+	// Personal Info
+	if fullName != nil {
+		s.PersonalInfo.FullName = *fullName
+	}
+	if enrollmentCode != nil {
+		s.PersonalInfo.EnrollmentCode = *enrollmentCode
+	}
+	if email != nil {
+		s.PersonalInfo.Email = *email
+	}
+	if phoneNumber != nil {
+		s.PersonalInfo.PhoneNumber = *phoneNumber
+	}
+	if dateOfBirth != nil {
+		s.PersonalInfo.DateOfBirth = *dateOfBirth
+	}
+	if cpf != nil {
+		s.PersonalInfo.CPF = *cpf
+	}
+	if rg != nil {
+		s.PersonalInfo.RG = *rg
 	}
 
+	// Address Info
 	if address != nil {
-		if address.Address != "" {
-			s.Address.Address = address.Address
-		}
-		if address.City != "" {
-			s.Address.City = address.City
-		}
-		if address.State != "" {
-			s.Address.State = address.State
-		}
-		if address.ZipCode != "" {
-			s.Address.ZipCode = address.ZipCode
-		}
-		if address.Country != "" {
-			s.Address.Country = address.Country
-		}
+		s.Address.Address = *address
+	}
+	if city != nil {
+		s.Address.City = *city
+	}
+	if state != nil {
+		s.Address.State = *state
+	}
+	if zipCode != nil {
+		s.Address.ZipCode = *zipCode
+	}
+	if country != nil {
+		s.Address.Country = *country
 	}
 
-	if school != nil {
-		if school.SchoolID != "" {
-			s.School.SchoolID = school.SchoolID
-		}
-		if school.SchoolName != "" {
-			s.School.SchoolName = school.SchoolName
-		}
-		if school.SchoolCode != "" {
-			s.School.SchoolCode = school.SchoolCode
-		}
-		if school.Grade != "" {
-			s.School.Grade = school.Grade
-		}
-		if school.ClassRoom != "" {
-			s.School.ClassRoom = school.ClassRoom
-		}
-		if school.Shift != "" {
-			s.School.Shift = school.Shift
-		}
-		if !school.EnrollmentDate.IsZero() {
-			s.School.EnrollmentDate = school.EnrollmentDate
-		}
+	// School Info
+	if schoolID != nil {
+		s.School.SchoolID = *schoolID
+	}
+	if schoolName != nil {
+		s.School.SchoolName = *schoolName
+	}
+	if schoolCode != nil {
+		s.School.SchoolCode = *schoolCode
+	}
+	if grade != nil {
+		s.School.Grade = *grade
+	}
+	if classRoom != nil {
+		s.School.ClassRoom = *classRoom
+	}
+	if shift != nil {
+		s.School.Shift = Shift(*shift)
+	}
+	if enrollmentDate != nil {
+		s.School.EnrollmentDate = *enrollmentDate
 	}
 
-	if guardian != nil {
-		if guardian.Name != "" {
-			s.Guardian.Name = guardian.Name
-		}
-		if guardian.Phone != "" {
-			s.Guardian.Phone = guardian.Phone
-		}
-		if guardian.Email != "" {
-			s.Guardian.Email = guardian.Email
-		}
-		if guardian.CPF != "" {
-			s.Guardian.CPF = guardian.CPF
-		}
+	// Guardian Info
+	if guardianName != nil {
+		s.Guardian.Name = *guardianName
+	}
+	if guardianPhone != nil {
+		s.Guardian.Phone = *guardianPhone
+	}
+	if guardianEmail != nil {
+		s.Guardian.Email = *guardianEmail
+	}
+	if guardianCPF != nil {
+		s.Guardian.CPF = *guardianCPF
 	}
 
+	// Metadata
 	if isActive != nil {
 		s.IsActive = *isActive
 	}
 	if observations != nil {
 		s.Observations = *observations
 	}
+
 	s.UpdatedAt = time.Now()
 
 	if _, err := ValidationUpdateStudent(s); err != nil {

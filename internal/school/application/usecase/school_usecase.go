@@ -70,17 +70,23 @@ func (s *SchoolUseCase) Update(ctx context.Context, id string, update school_dto
 	if err != nil {
 		return nil, err
 	}
-	schoolFound.Name = update.Name
-	schoolFound.Code = update.Code
-	schoolFound.Address = update.Address
-	schoolFound.City = update.City
-	schoolFound.State = update.State
-	schoolFound.ZipCode = update.ZipCode
-	schoolFound.Country = update.Country
-	schoolFound.PhoneNumber = update.PhoneNumber
-	schoolFound.Email = update.Email
-	schoolFound.IsActive = update.IsActive
-	schoolFound.Description = update.Description
+	err = schoolFound.UpdateSchool(
+		update.Name,
+		update.Code,
+		update.Address,
+		update.City,
+		update.State,
+		update.ZipCode,
+		update.Country,
+		update.PhoneNumber,
+		update.Email,
+		update.IsActive,
+		update.Description,
+	)
+
+	if err != nil {
+		return nil, err
+	}
 
 	school, err := s.repo.Update(ctx, id, schoolFound)
 	if err != nil {

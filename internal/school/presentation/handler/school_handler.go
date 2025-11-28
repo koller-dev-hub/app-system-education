@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	school_mapper "github.com/williamkoller/system-education/internal/school/application/mapper"
+	school_entity "github.com/williamkoller/system-education/internal/school/domain/entity"
 	port_school_handler "github.com/williamkoller/system-education/internal/school/port/handler"
 	port_school_repository "github.com/williamkoller/system-education/internal/school/port/repository"
 	port_school_usecase "github.com/williamkoller/system-education/internal/school/port/usecase"
@@ -34,6 +35,12 @@ func (s *SchoolHandler) CreateSchool(c *gin.Context) {
 
 	school, err := s.usecase.Create(c.Request.Context(), input)
 	if err != nil {
+		var validationErr *school_entity.ValidationError
+		if errors.As(err, &validationErr) {
+			c.Status(http.StatusBadRequest)
+			c.Error(err).SetType(gin.ErrorTypePublic)
+			return
+		}
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
 		return
@@ -85,6 +92,12 @@ func (s *SchoolHandler) UpdateSchool(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, port_school_repository.ErrNotFound) {
 			c.Status(http.StatusNotFound)
+			c.Error(err).SetType(gin.ErrorTypePublic)
+			return
+		}
+		var validationErr *school_entity.ValidationError
+		if errors.As(err, &validationErr) {
+			c.Status(http.StatusBadRequest)
 			c.Error(err).SetType(gin.ErrorTypePublic)
 			return
 		}

@@ -194,7 +194,7 @@ func TestUpdateSchool(t *testing.T) {
 		assert.Contains(t, err.Error(), "email is invalid")
 	})
 
-	t.Run("should return error when validation fails - isActive false", func(t *testing.T) {
+	t.Run("should update school successfully - set isActive false", func(t *testing.T) {
 		school := &School{
 			ID:          "123",
 			Name:        "Valid Name",
@@ -224,8 +224,8 @@ func TestUpdateSchool(t *testing.T) {
 
 		err := school.UpdateSchool(&name, &code, &address, &city, &state, &zipCode, &country, &phoneNumber, &email, &isActive, &description)
 
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "is active is required")
+		assert.NoError(t, err)
+		assert.False(t, school.IsActive)
 	})
 
 	t.Run("should return error when validation fails - empty description", func(t *testing.T) {

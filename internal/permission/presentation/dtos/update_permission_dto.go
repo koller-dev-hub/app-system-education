@@ -1,7 +1,7 @@
 package permission_dtos
 
 type UpdatePermissionDto struct {
-	UserID      string    `json:"user_id"`
+	UserID      *string   `json:"user_id"`
 	Modules     *[]string `json:"modules"`
 	Actions     *[]string `json:"actions"`
 	Level       *string   `json:"level"`

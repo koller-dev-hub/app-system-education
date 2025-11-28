@@ -63,20 +63,43 @@ func (s *School) PullDomainEvents() []shared_event.Event {
 }
 
 func (s *School) UpdateSchool(name *string, code *string, address *string, city *string, state *string, zipCode *string, country *string, phoneNumber *string, email *string, isActive *bool, description *string) error {
-	s.Name = *name
-	s.Code = *code
-	s.Address = *address
-	s.City = *city
-	s.State = *state
-	s.ZipCode = *zipCode
-	s.Country = *country
-	s.PhoneNumber = *phoneNumber
-	s.Email = *email
-	s.IsActive = *isActive
-	s.Description = *description
+	if name != nil {
+		s.Name = *name
+	}
+	if code != nil {
+		s.Code = *code
+	}
+	if address != nil {
+		s.Address = *address
+	}
+	if city != nil {
+		s.City = *city
+	}
+	if state != nil {
+		s.State = *state
+	}
+	if zipCode != nil {
+		s.ZipCode = *zipCode
+	}
+	if country != nil {
+		s.Country = *country
+	}
+	if phoneNumber != nil {
+		s.PhoneNumber = *phoneNumber
+	}
+	if email != nil {
+		s.Email = *email
+	}
+	if isActive != nil {
+		s.IsActive = *isActive
+	}
+	if description != nil {
+		s.Description = *description
+	}
+
 	s.UpdatedAt = time.Now()
 
-	vs, err := ValidationSchool(s)
+	vs, err := ValidationUpdateSchool(s)
 	if err != nil {
 		return err
 	}
