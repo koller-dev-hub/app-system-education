@@ -1,18 +1,19 @@
 package port_user_repository
 
 import (
-	"errors"
+    "context"
+    "errors"
 
-	userEntity "github.com/williamkoller/system-education/internal/user/domain/entity"
+    userEntity "github.com/williamkoller/system-education/internal/user/domain/entity"
 )
 
 type UserRepository interface {
-	Save(u *userEntity.User) (*userEntity.User, error)
-	FindByID(id string) (*userEntity.User, error)
-	FindAll() ([]*userEntity.User, error)
-	Delete(id string) error
-	FindByEmail(email string) (*userEntity.User, error)
-	Update(id string, u *userEntity.User) (*userEntity.User, error)
+    Save(ctx context.Context, u *userEntity.User) (*userEntity.User, error)
+    FindByID(ctx context.Context, id string) (*userEntity.User, error)
+    FindAll(ctx context.Context) ([]*userEntity.User, error)
+    Delete(ctx context.Context, id string) error
+    FindByEmail(ctx context.Context, email string) (*userEntity.User, error)
+    Update(ctx context.Context, id string, u *userEntity.User) (*userEntity.User, error)
 }
 
 var (

@@ -1,13 +1,14 @@
 package permission_usecase
 
 import (
-	"fmt"
+    "context"
+    "fmt"
 
-	"github.com/google/uuid"
-	permission_entity "github.com/williamkoller/system-education/internal/permission/domain/entity"
-	port_permission_repository "github.com/williamkoller/system-education/internal/permission/port/repository"
-	port_permission_usecase "github.com/williamkoller/system-education/internal/permission/port/usecase"
-	permission_dtos "github.com/williamkoller/system-education/internal/permission/presentation/dtos"
+    "github.com/google/uuid"
+    permission_entity "github.com/williamkoller/system-education/internal/permission/domain/entity"
+    port_permission_repository "github.com/williamkoller/system-education/internal/permission/port/repository"
+    port_permission_usecase "github.com/williamkoller/system-education/internal/permission/port/usecase"
+    permission_dtos "github.com/williamkoller/system-education/internal/permission/presentation/dtos"
 )
 
 type PermissionUsecase struct {
@@ -22,7 +23,7 @@ func NewPermissionUsecase(permissionRepository port_permission_repository.Permis
 
 var _ port_permission_usecase.PermissionUsecase = &PermissionUsecase{}
 
-func (p *PermissionUsecase) Create(input permission_dtos.AddPermissionDto) (*permission_entity.Permission, error) {
+func (p *PermissionUsecase) Create(ctx context.Context, input permission_dtos.AddPermissionDto) (*permission_entity.Permission, error) {
 	newPermission, err := permission_entity.NewPermission(&permission_entity.Permission{
 		ID:          uuid.New().String(),
 		UserID:      input.UserID,
@@ -36,7 +37,7 @@ func (p *PermissionUsecase) Create(input permission_dtos.AddPermissionDto) (*per
 		return nil, fmt.Errorf("failed to create permission: %w", err)
 	}
 
-	permission, err := p.permissionRepository.Save(newPermission)
+    permission, err := p.permissionRepository.Save(ctx, newPermission)
 	if err != nil {
 		return nil, fmt.Errorf("failed to save permission: %w", err)
 	}
@@ -44,24 +45,24 @@ func (p *PermissionUsecase) Create(input permission_dtos.AddPermissionDto) (*per
 	return permission, nil
 }
 
-func (p *PermissionUsecase) FindAll() ([]*permission_entity.Permission, error) {
-	permissions, err := p.permissionRepository.FindAll()
+func (p *PermissionUsecase) FindAll(ctx context.Context) ([]*permission_entity.Permission, error) {
+    permissions, err := p.permissionRepository.FindAll(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find all permissions: %w", err)
 	}
 	return permissions, nil
 }
 
-func (p *PermissionUsecase) FindById(id string) (*permission_entity.Permission, error) {
-	permission, err := p.permissionRepository.FindByID(id)
+func (p *PermissionUsecase) FindById(ctx context.Context, id string) (*permission_entity.Permission, error) {
+    permission, err := p.permissionRepository.FindByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find permission by id: %w", err)
 	}
 	return permission, nil
 }
 
-func (p *PermissionUsecase) Update(id string, input permission_dtos.UpdatePermissionDto) (*permission_entity.Permission, error) {
-	permission, err := p.permissionRepository.FindByID(id)
+func (p *PermissionUsecase) Update(ctx context.Context, id string, input permission_dtos.UpdatePermissionDto) (*permission_entity.Permission, error) {
+    permission, err := p.permissionRepository.FindByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find permission by id: %w", err)
 	}
@@ -71,23 +72,23 @@ func (p *PermissionUsecase) Update(id string, input permission_dtos.UpdatePermis
 		return nil, fmt.Errorf("failed to update permission: %w", err)
 	}
 
-	permission, err = p.permissionRepository.Update(id, permission)
+    permission, err = p.permissionRepository.Update(ctx, id, permission)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update permission: %w", err)
 	}
 	return permission, nil
 }
 
-func (p *PermissionUsecase) Delete(id string) error {
-	user, err := p.permissionRepository.FindByID(id)
+func (p *PermissionUsecase) Delete(ctx context.Context, id string) error {
+    user, err := p.permissionRepository.FindByID(ctx, id)
 	if err != nil {
 		return fmt.Errorf("failed to find permission by id: %w", err)
 	}
-	return p.permissionRepository.Delete(user.ID)
+    return p.permissionRepository.Delete(ctx, user.ID)
 }
 
-func (p *PermissionUsecase) FindPermissionByUserID(userID string) ([]*permission_entity.Permission, error) {
-	permissions, err := p.permissionRepository.FindPermissionByUserID(userID)
+func (p *PermissionUsecase) FindPermissionByUserID(ctx context.Context, userID string) ([]*permission_entity.Permission, error) {
+    permissions, err := p.permissionRepository.FindPermissionByUserID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find permission by user id: %w", err)
 	}

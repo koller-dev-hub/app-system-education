@@ -1,6 +1,8 @@
 package school_repository
 
 import (
+	"context"
+
 	school_entity "github.com/williamkoller/system-education/internal/school/domain/entity"
 	school_model "github.com/williamkoller/system-education/internal/school/infra/db/model"
 	port_school_repository "github.com/williamkoller/system-education/internal/school/port/repository"
@@ -17,17 +19,17 @@ func NewSchoolGormRepository(db *gorm.DB) *SchoolGormRepository {
 
 var _ port_school_repository.SchoolRepository = &SchoolGormRepository{}
 
-func (r *SchoolGormRepository) Save(s *school_entity.School) (*school_entity.School, error) {
+func (r *SchoolGormRepository) Save(ctx context.Context, s *school_entity.School) (*school_entity.School, error) {
 	model := school_model.FromEntity(s)
-	if err := r.db.Create(&model).Error; err != nil {
+	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
 		return nil, err
 	}
 	return school_model.ToEntity(model), nil
 }
 
-func (r *SchoolGormRepository) Update(id string, s *school_entity.School) (*school_entity.School, error) {
+func (r *SchoolGormRepository) Update(ctx context.Context, id string, s *school_entity.School) (*school_entity.School, error) {
 	model := school_model.FromEntity(s)
-	result := r.db.Model(&school_model.School{}).Where("id = ?", id).Updates(&model)
+	result := r.db.WithContext(ctx).Model(&school_model.School{}).Where("id = ?", id).Updates(&model)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -40,8 +42,8 @@ func (r *SchoolGormRepository) Update(id string, s *school_entity.School) (*scho
 	return school_model.ToEntity(model), nil
 }
 
-func (r *SchoolGormRepository) Delete(id string) error {
-	result := r.db.Unscoped().Delete(&school_model.School{}, "id = ?", id)
+func (r *SchoolGormRepository) Delete(ctx context.Context, id string) error {
+	result := r.db.WithContext(ctx).Unscoped().Delete(&school_model.School{}, "id = ?", id)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -51,20 +53,20 @@ func (r *SchoolGormRepository) Delete(id string) error {
 	return nil
 }
 
-func (r *SchoolGormRepository) FindAll() ([]*school_entity.School, error) {
+func (r *SchoolGormRepository) FindAll(ctx context.Context) ([]*school_entity.School, error) {
 	var schools []*school_entity.School
 	models := school_model.FromEntities(schools)
-	if err := r.db.Find(&models).Error; err != nil {
+	if err := r.db.WithContext(ctx).Find(&models).Error; err != nil {
 		return nil, err
 	}
 	return school_model.ToEntities(models), nil
 }
 
-func (r *SchoolGormRepository) FindById(id string) (*school_entity.School, error) {
+func (r *SchoolGormRepository) FindById(ctx context.Context, id string) (*school_entity.School, error) {
 	var school *school_entity.School
 	model := school_model.FromEntity(school)
 
-	if err := r.db.First(&model, "id = ?", id).Error; err != nil {
+	if err := r.db.WithContext(ctx).First(&model, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, port_school_repository.ErrNotFound
 		}

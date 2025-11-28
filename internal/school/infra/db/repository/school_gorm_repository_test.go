@@ -1,6 +1,7 @@
 package school_repository
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -52,7 +53,7 @@ func (s *SchoolGormRepositorySuite) TestCreate() {
 		UpdatedAt:   time.Now(),
 	}
 
-	createdSchool, err := s.repository.Save(school)
+	createdSchool, err := s.repository.Save(context.Background(), school)
 
 	s.NoError(err)
 	s.NotNil(createdSchool)
@@ -70,7 +71,7 @@ func (s *SchoolGormRepositorySuite) TestCreate_Error() {
 	sqlDB, _ := s.db.DB()
 	sqlDB.Close()
 
-	createdSchool, err := s.repository.Save(school)
+	createdSchool, err := s.repository.Save(context.Background(), school)
 
 	s.Error(err)
 	s.Nil(createdSchool)
@@ -84,16 +85,16 @@ func (s *SchoolGormRepositorySuite) TestUpdate() {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	created, _ := s.repository.Save(school)
+	created, _ := s.repository.Save(context.Background(), school)
 
 	created.Name = "Updated School Name"
-	updatedSchool, err := s.repository.Update(created.ID, created)
+	updatedSchool, err := s.repository.Update(context.Background(), created.ID, created)
 
 	s.NoError(err)
 	s.NotNil(updatedSchool)
 	s.Equal("Updated School Name", updatedSchool.Name)
 
-	found, _ := s.repository.FindById(created.ID)
+	found, _ := s.repository.FindById(context.Background(), created.ID)
 	s.Equal("Updated School Name", found.Name)
 }
 
@@ -103,7 +104,7 @@ func (s *SchoolGormRepositorySuite) TestUpdate_NotFound() {
 		Name: "Not Found School",
 	}
 
-	updatedSchool, err := s.repository.Update("non-existent-id", school)
+	updatedSchool, err := s.repository.Update(context.Background(), "non-existent-id", school)
 
 	s.Error(err)
 	s.Equal(port_school_repository.ErrNotFound, err)
@@ -117,12 +118,12 @@ func (s *SchoolGormRepositorySuite) TestUpdate_DBError() {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	created, _ := s.repository.Save(school)
+	created, _ := s.repository.Save(context.Background(), school)
 
 	sqlDB, _ := s.db.DB()
 	sqlDB.Close()
 
-	updatedSchool, err := s.repository.Update(created.ID, created)
+	updatedSchool, err := s.repository.Update(context.Background(), created.ID, created)
 
 	s.Error(err)
 	s.NotEqual(port_school_repository.ErrNotFound, err)
@@ -136,20 +137,20 @@ func (s *SchoolGormRepositorySuite) TestDelete() {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	created, _ := s.repository.Save(school)
+	created, _ := s.repository.Save(context.Background(), school)
 
-	err := s.repository.Delete(created.ID)
+	err := s.repository.Delete(context.Background(), created.ID)
 
 	s.NoError(err)
 
-	found, err := s.repository.FindById(created.ID)
+	found, err := s.repository.FindById(context.Background(), created.ID)
 	s.Error(err)
 	s.Equal(port_school_repository.ErrNotFound, err)
 	s.Nil(found)
 }
 
 func (s *SchoolGormRepositorySuite) TestDelete_NotFound() {
-	err := s.repository.Delete("non-existent-id")
+	err := s.repository.Delete(context.Background(), "non-existent-id")
 
 	s.Error(err)
 	s.Equal(port_school_repository.ErrNotFound, err)
@@ -159,7 +160,7 @@ func (s *SchoolGormRepositorySuite) TestDelete_DBError() {
 	sqlDB, _ := s.db.DB()
 	sqlDB.Close()
 
-	err := s.repository.Delete("some-id")
+	err := s.repository.Delete(context.Background(), "some-id")
 
 	s.Error(err)
 	s.NotEqual(port_school_repository.ErrNotFound, err)
@@ -168,10 +169,10 @@ func (s *SchoolGormRepositorySuite) TestDelete_DBError() {
 func (s *SchoolGormRepositorySuite) TestFindAll() {
 	school1 := &school_entity.School{ID: "school-7", Name: "School 1", CreatedAt: time.Now(), UpdatedAt: time.Now()}
 	school2 := &school_entity.School{ID: "school-8", Name: "School 2", CreatedAt: time.Now(), UpdatedAt: time.Now()}
-	s.repository.Save(school1)
-	s.repository.Save(school2)
+	s.repository.Save(context.Background(), school1)
+	s.repository.Save(context.Background(), school2)
 
-	schools, err := s.repository.FindAll()
+	schools, err := s.repository.FindAll(context.Background())
 
 	s.NoError(err)
 	s.Len(schools, 2)
@@ -181,7 +182,7 @@ func (s *SchoolGormRepositorySuite) TestFindAll_Error() {
 	sqlDB, _ := s.db.DB()
 	sqlDB.Close()
 
-	schools, err := s.repository.FindAll()
+	schools, err := s.repository.FindAll(context.Background())
 
 	s.Error(err)
 	s.Nil(schools)
@@ -194,9 +195,9 @@ func (s *SchoolGormRepositorySuite) TestFindById() {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	created, _ := s.repository.Save(school)
+	created, _ := s.repository.Save(context.Background(), school)
 
-	foundSchool, err := s.repository.FindById(created.ID)
+	foundSchool, err := s.repository.FindById(context.Background(), created.ID)
 
 	s.NoError(err)
 	s.NotNil(foundSchool)
@@ -205,7 +206,7 @@ func (s *SchoolGormRepositorySuite) TestFindById() {
 }
 
 func (s *SchoolGormRepositorySuite) TestFindById_NotFound() {
-	foundSchool, err := s.repository.FindById("non-existent-id")
+	foundSchool, err := s.repository.FindById(context.Background(), "non-existent-id")
 
 	s.Error(err)
 	s.Equal(port_school_repository.ErrNotFound, err)
@@ -216,7 +217,7 @@ func (s *SchoolGormRepositorySuite) TestFindById_DBError() {
 	sqlDB, _ := s.db.DB()
 	sqlDB.Close()
 
-	foundSchool, err := s.repository.FindById("some-id")
+	foundSchool, err := s.repository.FindById(context.Background(), "some-id")
 
 	s.Error(err)
 	s.NotEqual(port_school_repository.ErrNotFound, err)

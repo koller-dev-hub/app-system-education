@@ -28,7 +28,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.usecase.Login(input.Email, input.Password)
+    token, err := h.usecase.Login(c.Request.Context(), input.Email, input.Password)
 
 	if err != nil {
 		c.Status(http.StatusBadRequest)
@@ -40,8 +40,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 func (h *AuthHandler) Profile(c *gin.Context) {
-	userEmail, _ := c.Get("userEmail")
-	email, err := h.usecase.Profile(userEmail.(string))
+    userEmail, _ := c.Get("userEmail")
+    email, err := h.usecase.Profile(c.Request.Context(), userEmail.(string))
 
 	if err != nil {
 		c.Status(http.StatusBadRequest)

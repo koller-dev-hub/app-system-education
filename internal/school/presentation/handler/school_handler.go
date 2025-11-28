@@ -30,7 +30,7 @@ func (s *SchoolHandler) CreateSchool(c *gin.Context) {
 		return
 	}
 
-	school, err := s.usecase.Create(input)
+    school, err := s.usecase.Create(c.Request.Context(), input)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
@@ -43,7 +43,7 @@ func (s *SchoolHandler) CreateSchool(c *gin.Context) {
 }
 
 func (s *SchoolHandler) FindAllSchool(c *gin.Context) {
-	schools, err := s.usecase.FindAll()
+    schools, err := s.usecase.FindAll(c.Request.Context())
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
@@ -54,8 +54,8 @@ func (s *SchoolHandler) FindAllSchool(c *gin.Context) {
 }
 
 func (s *SchoolHandler) FindByIdSchool(c *gin.Context) {
-	id := c.Param("id")
-	school, err := s.usecase.FindById(id)
+    id := c.Param("id")
+    school, err := s.usecase.FindById(c.Request.Context(), id)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
@@ -74,7 +74,7 @@ func (s *SchoolHandler) UpdateSchool(c *gin.Context) {
 		return
 	}
 
-	school, err := s.usecase.Update(id, input)
+    school, err := s.usecase.Update(c.Request.Context(), id, input)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
@@ -86,7 +86,7 @@ func (s *SchoolHandler) UpdateSchool(c *gin.Context) {
 
 func (s *SchoolHandler) DeleteSchool(c *gin.Context) {
 	id := c.Param("id")
-	err := s.usecase.Delete(id)
+    err := s.usecase.Delete(c.Request.Context(), id)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)

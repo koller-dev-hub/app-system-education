@@ -1,59 +1,60 @@
 package auth_usecase
 
 import (
-	"errors"
-	"testing"
-	"time"
+    "context"
+    "errors"
+    "testing"
+    "time"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	permissionEntity "github.com/williamkoller/system-education/internal/permission/domain/entity"
-	userEntity "github.com/williamkoller/system-education/internal/user/domain/entity"
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/mock"
+    permissionEntity "github.com/williamkoller/system-education/internal/permission/domain/entity"
+    userEntity "github.com/williamkoller/system-education/internal/user/domain/entity"
 )
 
 type MockUserRepository struct {
-	mock.Mock
+    mock.Mock
 }
 
-func (m *MockUserRepository) Save(user *userEntity.User) (*userEntity.User, error) {
-	args := m.Called(user)
+func (m *MockUserRepository) Save(ctx context.Context, user *userEntity.User) (*userEntity.User, error) {
+    args := m.Called(ctx, user)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*userEntity.User), args.Error(1)
 }
 
-func (m *MockUserRepository) FindByEmail(email string) (*userEntity.User, error) {
-	args := m.Called(email)
+func (m *MockUserRepository) FindByEmail(ctx context.Context, email string) (*userEntity.User, error) {
+    args := m.Called(ctx, email)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*userEntity.User), args.Error(1)
 }
 
-func (m *MockUserRepository) FindByID(id string) (*userEntity.User, error) {
-	args := m.Called(id)
+func (m *MockUserRepository) FindByID(ctx context.Context, id string) (*userEntity.User, error) {
+    args := m.Called(ctx, id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*userEntity.User), args.Error(1)
 }
 
-func (m *MockUserRepository) Update(id string, user *userEntity.User) (*userEntity.User, error) {
-	args := m.Called(id, user)
+func (m *MockUserRepository) Update(ctx context.Context, id string, user *userEntity.User) (*userEntity.User, error) {
+    args := m.Called(ctx, id, user)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*userEntity.User), args.Error(1)
 }
 
-func (m *MockUserRepository) Delete(id string) error {
-	args := m.Called(id)
-	return args.Error(0)
+func (m *MockUserRepository) Delete(ctx context.Context, id string) error {
+    args := m.Called(ctx, id)
+    return args.Error(0)
 }
 
-func (m *MockUserRepository) FindAll() ([]*userEntity.User, error) {
-	args := m.Called()
+func (m *MockUserRepository) FindAll(ctx context.Context) ([]*userEntity.User, error) {
+    args := m.Called(ctx)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -92,48 +93,48 @@ func (m *MockBcrypt) HashComparer(password, hash string) (bool, error) {
 }
 
 type MockPermissionRepository struct {
-	mock.Mock
+    mock.Mock
 }
 
-func (m *MockPermissionRepository) Save(permission *permissionEntity.Permission) (*permissionEntity.Permission, error) {
-	args := m.Called(permission)
+func (m *MockPermissionRepository) Save(ctx context.Context, permission *permissionEntity.Permission) (*permissionEntity.Permission, error) {
+    args := m.Called(ctx, permission)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*permissionEntity.Permission), args.Error(1)
 }
 
-func (m *MockPermissionRepository) FindByID(id string) (*permissionEntity.Permission, error) {
-	args := m.Called(id)
+func (m *MockPermissionRepository) FindByID(ctx context.Context, id string) (*permissionEntity.Permission, error) {
+    args := m.Called(ctx, id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*permissionEntity.Permission), args.Error(1)
 }
 
-func (m *MockPermissionRepository) FindPermissionByUserID(userID string) ([]*permissionEntity.Permission, error) {
-	args := m.Called(userID)
+func (m *MockPermissionRepository) FindPermissionByUserID(ctx context.Context, userID string) ([]*permissionEntity.Permission, error) {
+    args := m.Called(ctx, userID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).([]*permissionEntity.Permission), args.Error(1)
 }
 
-func (m *MockPermissionRepository) Update(id string, permission *permissionEntity.Permission) (*permissionEntity.Permission, error) {
-	args := m.Called(id, permission)
+func (m *MockPermissionRepository) Update(ctx context.Context, id string, permission *permissionEntity.Permission) (*permissionEntity.Permission, error) {
+    args := m.Called(ctx, id, permission)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*permissionEntity.Permission), args.Error(1)
 }
 
-func (m *MockPermissionRepository) Delete(id string) error {
-	args := m.Called(id)
-	return args.Error(0)
+func (m *MockPermissionRepository) Delete(ctx context.Context, id string) error {
+    args := m.Called(ctx, id)
+    return args.Error(0)
 }
 
-func (m *MockPermissionRepository) FindAll() ([]*permissionEntity.Permission, error) {
-	args := m.Called()
+func (m *MockPermissionRepository) FindAll(ctx context.Context) ([]*permissionEntity.Permission, error) {
+    args := m.Called(ctx)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -165,14 +166,14 @@ func TestAuthUsecase_Login_Success(t *testing.T) {
 
 	expectedToken := "jwt.token.here"
 
-	mockRepo.On("FindByEmail", email).Return(user, nil)
+    mockRepo.On("FindByEmail", mock.Anything, email).Return(user, nil)
 	mockBcrypt.On("HashComparer", password, hashedPassword).Return(true, nil)
-	mockPermissionRepo.On("FindPermissionByUserID", "user-123").Return([]*permissionEntity.Permission{}, nil)
+    mockPermissionRepo.On("FindPermissionByUserID", mock.Anything, "user-123").Return([]*permissionEntity.Permission{}, nil)
 	mockTokenManager.On("Sign", mock.MatchedBy(func(data map[string]interface{}) bool {
 		return data["email"] == email && data["name"] == "John" && data["user_id"] == "user-123"
 	})).Return(expectedToken, nil)
 
-	token, err := usecase.Login(email, password)
+    token, err := usecase.Login(context.Background(), email, password)
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectedToken, token)
@@ -193,9 +194,9 @@ func TestAuthUsecase_Login_UserNotFound(t *testing.T) {
 	email := "nonexistent@example.com"
 	password := "password123"
 
-	mockRepo.On("FindByEmail", email).Return(nil, errors.New("not found"))
+    mockRepo.On("FindByEmail", mock.Anything, email).Return(nil, errors.New("not found"))
 
-	token, err := usecase.Login(email, password)
+    token, err := usecase.Login(context.Background(), email, password)
 
 	assert.Error(t, err)
 	assert.Equal(t, "", token)
@@ -226,11 +227,11 @@ func TestAuthUsecase_Login_InvalidPassword(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 
-	mockRepo.On("FindByEmail", email).Return(user, nil)
+    mockRepo.On("FindByEmail", mock.Anything, email).Return(user, nil)
 	mockBcrypt.On("HashComparer", password, hashedPassword).Return(false, errors.New("password mismatch"))
 
 	// Act
-	token, err := usecase.Login(email, password)
+    token, err := usecase.Login(context.Background(), email, password)
 
 	// Assert
 	assert.Error(t, err)
@@ -263,12 +264,12 @@ func TestAuthUsecase_Login_TokenGenerationError(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 
-	mockRepo.On("FindByEmail", email).Return(user, nil)
+    mockRepo.On("FindByEmail", mock.Anything, email).Return(user, nil)
 	mockBcrypt.On("HashComparer", password, hashedPassword).Return(true, nil)
-	mockPermissionRepo.On("FindPermissionByUserID", "user-123").Return([]*permissionEntity.Permission{}, nil)
+    mockPermissionRepo.On("FindPermissionByUserID", mock.Anything, "user-123").Return([]*permissionEntity.Permission{}, nil)
 	mockTokenManager.On("Sign", mock.Anything).Return("", errors.New("token generation failed"))
 
-	token, err := usecase.Login(email, password)
+    token, err := usecase.Login(context.Background(), email, password)
 
 	assert.Error(t, err)
 	assert.Equal(t, "", token)
@@ -300,9 +301,9 @@ func TestAuthUsecase_Profile_Success(t *testing.T) {
 		UpdatedAt: time.Now(),
 	}
 
-	mockRepo.On("FindByEmail", email).Return(user, nil)
+    mockRepo.On("FindByEmail", mock.Anything, email).Return(user, nil)
 
-	result, err := usecase.Profile(email)
+    result, err := usecase.Profile(context.Background(), email)
 
 	assert.NoError(t, err)
 	assert.Equal(t, email, result)
@@ -319,9 +320,9 @@ func TestAuthUsecase_Profile_UserNotFound(t *testing.T) {
 
 	email := "nonexistent@example.com"
 
-	mockRepo.On("FindByEmail", email).Return(nil, errors.New("not found"))
+    mockRepo.On("FindByEmail", mock.Anything, email).Return(nil, errors.New("not found"))
 
-	result, err := usecase.Profile(email)
+    result, err := usecase.Profile(context.Background(), email)
 
 	assert.Error(t, err)
 	assert.Equal(t, "", result)
@@ -365,9 +366,9 @@ func TestAuthUsecase_Login_WithPermissionsAndModules(t *testing.T) {
 
 	expectedToken := "jwt.token.with.modules"
 
-	mockRepo.On("FindByEmail", email).Return(user, nil)
+    mockRepo.On("FindByEmail", mock.Anything, email).Return(user, nil)
 	mockBcrypt.On("HashComparer", password, hashedPassword).Return(true, nil)
-	mockPermissionRepo.On("FindPermissionByUserID", "user-123").Return(permissions, nil)
+    mockPermissionRepo.On("FindPermissionByUserID", mock.Anything, "user-123").Return(permissions, nil)
 	mockTokenManager.On("Sign", mock.MatchedBy(func(data map[string]interface{}) bool {
 		modules, ok := data["modules"].([]string)
 		if !ok {
@@ -379,7 +380,7 @@ func TestAuthUsecase_Login_WithPermissionsAndModules(t *testing.T) {
 			data["user_id"] == "user-123"
 	})).Return(expectedToken, nil)
 
-	token, err := usecase.Login(email, password)
+    token, err := usecase.Login(context.Background(), email, password)
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectedToken, token)
@@ -414,10 +415,10 @@ func TestAuthUsecase_Login_PermissionFetchError(t *testing.T) {
 
 	expectedToken := "jwt.token.no.modules"
 
-	mockRepo.On("FindByEmail", email).Return(user, nil)
+    mockRepo.On("FindByEmail", mock.Anything, email).Return(user, nil)
 	mockBcrypt.On("HashComparer", password, hashedPassword).Return(true, nil)
 	// Permission fetch fails, but login should still succeed with empty modules
-	mockPermissionRepo.On("FindPermissionByUserID", "user-123").Return(nil, errors.New("permission db error"))
+    mockPermissionRepo.On("FindPermissionByUserID", mock.Anything, "user-123").Return(nil, errors.New("permission db error"))
 	mockTokenManager.On("Sign", mock.MatchedBy(func(data map[string]interface{}) bool {
 		modules, ok := data["modules"].([]string)
 		if !ok {
@@ -429,7 +430,7 @@ func TestAuthUsecase_Login_PermissionFetchError(t *testing.T) {
 			data["user_id"] == "user-123"
 	})).Return(expectedToken, nil)
 
-	token, err := usecase.Login(email, password)
+    token, err := usecase.Login(context.Background(), email, password)
 
 	assert.NoError(t, err)
 	assert.Equal(t, expectedToken, token)

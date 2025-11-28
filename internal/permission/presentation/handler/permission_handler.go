@@ -33,7 +33,7 @@ func (h *PermissionHandler) CreatePermission(c *gin.Context) {
 		return
 	}
 
-	p, err := h.usecase.Create(input)
+    p, err := h.usecase.Create(c.Request.Context(), input)
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
@@ -46,7 +46,7 @@ func (h *PermissionHandler) CreatePermission(c *gin.Context) {
 }
 
 func (h *PermissionHandler) FindAllPermission(c *gin.Context) {
-	permissions, err := h.usecase.FindAll()
+    permissions, err := h.usecase.FindAll(c.Request.Context())
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
@@ -59,7 +59,7 @@ func (h *PermissionHandler) FindAllPermission(c *gin.Context) {
 }
 
 func (h *PermissionHandler) FindPermissionByUserID(c *gin.Context) {
-	permissions, err := h.usecase.FindPermissionByUserID(c.Param("user_id"))
+    permissions, err := h.usecase.FindPermissionByUserID(c.Request.Context(), c.Param("user_id"))
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
@@ -80,7 +80,7 @@ func (h *PermissionHandler) UpdatePermission(c *gin.Context) {
 		return
 	}
 
-	p, err := h.usecase.Update(c.Param("id"), input)
+    p, err := h.usecase.Update(c.Request.Context(), c.Param("id"), input)
 	if err != nil {
 		if errors.Is(err, permission_entity.ErrNotFound) {
 			c.Status(http.StatusNotFound)
@@ -98,7 +98,7 @@ func (h *PermissionHandler) UpdatePermission(c *gin.Context) {
 }
 
 func (h *PermissionHandler) DeletePermission(c *gin.Context) {
-	if err := h.usecase.Delete(c.Param("id")); err != nil {
+    if err := h.usecase.Delete(c.Request.Context(), c.Param("id")); err != nil {
 		if errors.Is(err, permission_entity.ErrNotFound) {
 			c.Status(http.StatusNotFound)
 			c.Error(err).SetType(gin.ErrorTypePublic)
@@ -113,7 +113,7 @@ func (h *PermissionHandler) DeletePermission(c *gin.Context) {
 }
 
 func (h *PermissionHandler) FindPermissionById(c *gin.Context) {
-	p, err := h.usecase.FindById(c.Param("id"))
+    p, err := h.usecase.FindById(c.Request.Context(), c.Param("id"))
 	if err != nil {
 		if errors.Is(err, permission_entity.ErrNotFound) {
 			c.Status(http.StatusNotFound)

@@ -31,7 +31,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.usecase.Create(input)
+    user, err := h.usecase.Create(c.Request.Context(), input)
 
 	if err != nil {
 		if errors.Is(err, portUserRepository.ErrUserAlreadyExists) {
@@ -50,7 +50,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 }
 
 func (h *UserHandler) FindAllUsers(c *gin.Context) {
-	users, err := h.usecase.FindAll()
+    users, err := h.usecase.FindAll(c.Request.Context())
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
@@ -62,8 +62,8 @@ func (h *UserHandler) FindAllUsers(c *gin.Context) {
 }
 
 func (h *UserHandler) FindByID(c *gin.Context) {
-	idParams := c.Param("id")
-	user, err := h.usecase.FindByID(idParams)
+    idParams := c.Param("id")
+    user, err := h.usecase.FindByID(c.Request.Context(), idParams)
 
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
@@ -85,7 +85,7 @@ func (h *UserHandler) Update(c *gin.Context) {
 		return
 	}
 
-	user, err := h.usecase.Update(idParams, input)
+    user, err := h.usecase.Update(c.Request.Context(), idParams, input)
 
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
@@ -98,9 +98,8 @@ func (h *UserHandler) Update(c *gin.Context) {
 }
 
 func (h *UserHandler) Delete(c *gin.Context) {
-	id := c.Param("id")
-
-	err := h.usecase.Delete(id)
+    id := c.Param("id")
+    err := h.usecase.Delete(c.Request.Context(), id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "failed to delete user",
