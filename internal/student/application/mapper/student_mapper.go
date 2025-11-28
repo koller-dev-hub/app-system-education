@@ -8,33 +8,33 @@ import (
 
 type StudentResponse struct {
 	ID             string    `json:"id"`
-	FullName       string    `json:"full_name"`
-	EnrollmentCode string    `json:"enrollment_code"`
+	FullName       string    `json:"fullName"`
+	EnrollmentCode string    `json:"enrollmentCode"`
 	Email          string    `json:"email"`
-	PhoneNumber    string    `json:"phone_number"`
-	DateOfBirth    time.Time `json:"date_of_birth"`
+	PhoneNumber    string    `json:"phoneNumber"`
+	DateOfBirth    time.Time `json:"dateOfBirth"`
 	CPF            string    `json:"cpf"`
 	RG             string    `json:"rg"`
 	Address        string    `json:"address"`
 	City           string    `json:"city"`
 	State          string    `json:"state"`
-	ZipCode        string    `json:"zip_code"`
+	ZipCode        string    `json:"zipCode"`
 	Country        string    `json:"country"`
-	SchoolID       string    `json:"school_id"`
-	SchoolName     string    `json:"school_name"`
-	SchoolCode     string    `json:"school_code"`
+	SchoolID       string    `json:"schoolId"`
+	SchoolName     string    `json:"schoolName"`
+	SchoolCode     string    `json:"schoolCode"`
 	Grade          string    `json:"grade"`
-	ClassRoom      string    `json:"class_room"`
+	ClassRoom      string    `json:"classRoom"`
 	Shift          string    `json:"shift"`
-	EnrollmentDate time.Time `json:"enrollment_date"`
-	GuardianName   string    `json:"guardian_name"`
-	GuardianPhone  string    `json:"guardian_phone"`
-	GuardianEmail  string    `json:"guardian_email"`
-	GuardianCPF    string    `json:"guardian_cpf"`
-	IsActive       bool      `json:"is_active"`
+	EnrollmentDate time.Time `json:"enrollmentDate"`
+	GuardianName   string    `json:"guardianName"`
+	GuardianPhone  string    `json:"guardianPhone"`
+	GuardianEmail  string    `json:"guardianEmail"`
+	GuardianCPF    string    `json:"guardianCpf"`
+	IsActive       bool      `json:"isActive"`
 	Observations   string    `json:"observations"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	CreatedAt      time.Time `json:"createdAt"`
+	UpdatedAt      time.Time `json:"updatedAt"`
 }
 
 func ToStudentResponse(student *student_entity.Student) *StudentResponse {
