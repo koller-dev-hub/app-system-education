@@ -8,13 +8,13 @@ import (
 )
 
 type PersonalInfo struct {
-	FullName    string
-	StudentID   string
-	Email       string
-	PhoneNumber string
-	DateOfBirth time.Time
-	CPF         string
-	RG          string
+	FullName       string
+	EnrollmentCode string // Enrollment Code is unique for each student
+	Email          string
+	PhoneNumber    string
+	DateOfBirth    time.Time
+	CPF            string
+	RG             string
 }
 
 type AddressInfo struct {
@@ -103,8 +103,8 @@ func (s *Student) Update(
 		if personalInfo.FullName != "" {
 			s.PersonalInfo.FullName = personalInfo.FullName
 		}
-		if personalInfo.StudentID != "" {
-			s.PersonalInfo.StudentID = personalInfo.StudentID
+		if personalInfo.EnrollmentCode != "" {
+			s.PersonalInfo.EnrollmentCode = personalInfo.EnrollmentCode
 		}
 		if personalInfo.Email != "" {
 			s.PersonalInfo.Email = personalInfo.Email

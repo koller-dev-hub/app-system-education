@@ -10,12 +10,12 @@ import (
 func createValidStudent() *Student {
 	return &Student{
 		PersonalInfo: PersonalInfo{
-			FullName:    "John Doe",
-			StudentID:   "ST123",
-			Email:       "john@example.com",
-			PhoneNumber: "123456789",
-			DateOfBirth: time.Now().AddDate(-10, 0, 0),
-			CPF:         "11144477735",
+			FullName:       "John Doe",
+			EnrollmentCode: "ST123",
+			Email:          "john@example.com",
+			PhoneNumber:    "123456789",
+			DateOfBirth:    time.Now().AddDate(-10, 0, 0),
+			CPF:            "11144477735",
 		},
 		Address: AddressInfo{
 			Address: "123 Main St",
@@ -127,13 +127,13 @@ func TestUpdate_FullCoverage(t *testing.T) {
 
 	// Prepare full update data
 	newPersonalInfo := PersonalInfo{
-		FullName:    "Updated Name",
-		StudentID:   "ST999",
-		Email:       "updated@example.com",
-		PhoneNumber: "999999999",
-		DateOfBirth: time.Now().AddDate(-12, 0, 0),
-		CPF:         "11144477735", // Valid but same for simplicity, logic checks != ""
-		RG:          "RG999",
+		FullName:       "Updated Name",
+		EnrollmentCode: "ST999",
+		Email:          "updated@example.com",
+		PhoneNumber:    "999999999",
+		DateOfBirth:    time.Now().AddDate(-12, 0, 0),
+		CPF:            "11144477735", // Valid but same for simplicity, logic checks != ""
+		RG:             "RG999",
 	}
 
 	newAddress := AddressInfo{
@@ -175,7 +175,7 @@ func TestUpdate_FullCoverage(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, "Updated Name", student.PersonalInfo.FullName)
-	assert.Equal(t, "ST999", student.PersonalInfo.StudentID)
+	assert.Equal(t, "ST999", student.PersonalInfo.EnrollmentCode)
 	assert.Equal(t, "updated@example.com", student.PersonalInfo.Email)
 	assert.Equal(t, "999999999", student.PersonalInfo.PhoneNumber)
 	assert.Equal(t, "RG999", student.PersonalInfo.RG)

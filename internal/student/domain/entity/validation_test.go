@@ -20,12 +20,12 @@ func TestValidationStudent(t *testing.T) {
 			name: "Success",
 			student: &Student{
 				PersonalInfo: PersonalInfo{
-					FullName:    "John Doe",
-					StudentID:   "ST123",
-					Email:       "john@example.com",
-					PhoneNumber: "123456789",
-					DateOfBirth: validDateOfBirth,
-					CPF:         "111.444.777-35",
+					FullName:       "John Doe",
+					EnrollmentCode: "ST123",
+					Email:          "john@example.com",
+					PhoneNumber:    "123456789",
+					DateOfBirth:    validDateOfBirth,
+					CPF:            "111.444.777-35",
 				},
 				Address: AddressInfo{
 					Address: "123 Main St",
@@ -185,12 +185,12 @@ func TestValidationUpdateStudent(t *testing.T) {
 			name: "Success",
 			student: &Student{
 				PersonalInfo: PersonalInfo{
-					FullName:    "John Doe",
-					StudentID:   "ST123",
-					Email:       "john@example.com",
-					PhoneNumber: "123456789",
-					DateOfBirth: time.Now().AddDate(-10, 0, 0),
-					CPF:         "111.444.777-35",
+					FullName:       "John Doe",
+					EnrollmentCode: "ST123",
+					Email:          "john@example.com",
+					PhoneNumber:    "123456789",
+					DateOfBirth:    time.Now().AddDate(-10, 0, 0),
+					CPF:            "111.444.777-35",
 				},
 				Address: AddressInfo{
 					Address: "123 Main St",
