@@ -1,0 +1,1 @@
+ALTER USER user_system_education WITH PASSWORD 'Q1w2e3r4t5y6u7i8o9p0';
