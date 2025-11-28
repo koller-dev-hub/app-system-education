@@ -1,6 +1,7 @@
 package auth_usecase
 
 import (
+	"context"
 	"errors"
 
 	port_auth_cryptography "github.com/williamkoller/system-education/internal/auth/port/cryptography"
@@ -33,8 +34,8 @@ func NewAuthUsecase(
 	}
 }
 
-func (a *AuthUsecase) Login(email, password string) (string, error) {
-	user, err := a.repo.FindByEmail(email)
+func (a *AuthUsecase) Login(ctx context.Context, email, password string) (string, error) {
+	user, err := a.repo.FindByEmail(ctx, email)
 
 	if err != nil {
 		return "", errors.New("user not found")
@@ -47,7 +48,7 @@ func (a *AuthUsecase) Login(email, password string) (string, error) {
 	// Fetch user permissions and extract modules
 	modules := []string{}
 	actions := []string{}
-	permissions, err := a.permissionRepo.FindPermissionByUserID(user.ID)
+	permissions, err := a.permissionRepo.FindPermissionByUserID(ctx, user.ID)
 	if err == nil && len(permissions) > 0 {
 		for _, permission := range permissions {
 			modules = append(modules, permission.GetModules()...)
@@ -75,8 +76,8 @@ func (a *AuthUsecase) Login(email, password string) (string, error) {
 	return token, nil
 }
 
-func (a *AuthUsecase) Profile(email string) (string, error) {
-	user, err := a.repo.FindByEmail(email)
+func (a *AuthUsecase) Profile(ctx context.Context, email string) (string, error) {
+	user, err := a.repo.FindByEmail(ctx, email)
 
 	if err != nil {
 		return "", errors.New("user not found")

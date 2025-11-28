@@ -63,8 +63,8 @@ jobs:
       - name: Block if main/master
         if: ${{ steps.get_info.outputs.head_branch == 'main' || steps.get_info.outputs.head_branch == 'master' }}
         run: |
-          echo "Branch de origem '${{ steps.get_info.outputs.head_branch }}' não pode ser 'main' ou 'master'."
-          exit 1
+          echo "Branch de origem '${{ steps.get_info.outputs.head_branch }}' é 'main' ou 'master'. Workflow ignorado."
+          exit 0
 
       - name: Filter by branch prefix
         run: |

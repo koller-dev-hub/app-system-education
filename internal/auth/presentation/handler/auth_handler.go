@@ -28,10 +28,10 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.usecase.Login(input.Email, input.Password)
+	token, err := h.usecase.Login(c.Request.Context(), input.Email, input.Password)
 
 	if err != nil {
-		c.Status(http.StatusBadRequest)
+		c.Status(http.StatusUnauthorized)
 		c.Error(err).SetType(gin.ErrorTypePublic)
 		return
 	}
@@ -41,10 +41,10 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 func (h *AuthHandler) Profile(c *gin.Context) {
 	userEmail, _ := c.Get("userEmail")
-	email, err := h.usecase.Profile(userEmail.(string))
+	email, err := h.usecase.Profile(c.Request.Context(), userEmail.(string))
 
 	if err != nil {
-		c.Status(http.StatusBadRequest)
+		c.Status(http.StatusNotFound)
 		c.Error(err).SetType(gin.ErrorTypePublic)
 		return
 	}

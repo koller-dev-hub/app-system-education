@@ -1,6 +1,7 @@
 package permission_usecase
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -14,45 +15,45 @@ type MockPermissionRepository struct {
 	mock.Mock
 }
 
-func (m *MockPermissionRepository) Save(p *permission_entity.Permission) (*permission_entity.Permission, error) {
-	args := m.Called(p)
+func (m *MockPermissionRepository) Save(ctx context.Context, p *permission_entity.Permission) (*permission_entity.Permission, error) {
+	args := m.Called(ctx, p)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*permission_entity.Permission), args.Error(1)
 }
 
-func (m *MockPermissionRepository) FindAll() ([]*permission_entity.Permission, error) {
-	args := m.Called()
+func (m *MockPermissionRepository) FindAll(ctx context.Context) ([]*permission_entity.Permission, error) {
+	args := m.Called(ctx)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).([]*permission_entity.Permission), args.Error(1)
 }
 
-func (m *MockPermissionRepository) FindPermissionByUserID(userID string) ([]*permission_entity.Permission, error) {
-	args := m.Called(userID)
+func (m *MockPermissionRepository) FindPermissionByUserID(ctx context.Context, userID string) ([]*permission_entity.Permission, error) {
+	args := m.Called(ctx, userID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).([]*permission_entity.Permission), args.Error(1)
 }
 
-func (m *MockPermissionRepository) Update(id string, p *permission_entity.Permission) (*permission_entity.Permission, error) {
-	args := m.Called(id, p)
+func (m *MockPermissionRepository) Update(ctx context.Context, id string, p *permission_entity.Permission) (*permission_entity.Permission, error) {
+	args := m.Called(ctx, id, p)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*permission_entity.Permission), args.Error(1)
 }
 
-func (m *MockPermissionRepository) Delete(id string) error {
-	args := m.Called(id)
+func (m *MockPermissionRepository) Delete(ctx context.Context, id string) error {
+	args := m.Called(ctx, id)
 	return args.Error(0)
 }
 
-func (m *MockPermissionRepository) FindByID(id string) (*permission_entity.Permission, error) {
-	args := m.Called(id)
+func (m *MockPermissionRepository) FindByID(ctx context.Context, id string) (*permission_entity.Permission, error) {
+	args := m.Called(ctx, id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -72,7 +73,7 @@ func TestPermissionUsecase_Create(t *testing.T) {
 			Description: "test permission",
 		}
 
-		mockRepo.On("Save", mock.AnythingOfType("*permission_entity.Permission")).Return(&permission_entity.Permission{
+		mockRepo.On("Save", mock.Anything, mock.AnythingOfType("*permission_entity.Permission")).Return(&permission_entity.Permission{
 			ID:          "123",
 			UserID:      input.UserID,
 			Modules:     input.Modules,
@@ -81,7 +82,7 @@ func TestPermissionUsecase_Create(t *testing.T) {
 			Description: input.Description,
 		}, nil)
 
-		permission, err := usecase.Create(input)
+		permission, err := usecase.Create(context.Background(), input)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, permission)
@@ -97,7 +98,7 @@ func TestPermissionUsecase_Create(t *testing.T) {
 			UserID: "", // Invalid
 		}
 
-		permission, err := usecase.Create(input)
+		permission, err := usecase.Create(context.Background(), input)
 
 		assert.Error(t, err)
 		assert.Nil(t, permission)
@@ -116,9 +117,9 @@ func TestPermissionUsecase_Create(t *testing.T) {
 			Description: "test permission",
 		}
 
-		mockRepo.On("Save", mock.AnythingOfType("*permission_entity.Permission")).Return(nil, errors.New("db error"))
+		mockRepo.On("Save", mock.Anything, mock.AnythingOfType("*permission_entity.Permission")).Return(nil, errors.New("db error"))
 
-		permission, err := usecase.Create(input)
+		permission, err := usecase.Create(context.Background(), input)
 
 		assert.Error(t, err)
 		assert.Nil(t, permission)
@@ -136,9 +137,9 @@ func TestPermissionUsecase_FindAll(t *testing.T) {
 			{ID: "2", UserID: "user-2"},
 		}
 
-		mockRepo.On("FindAll").Return(expectedPermissions, nil)
+		mockRepo.On("FindAll", mock.Anything).Return(expectedPermissions, nil)
 
-		permissions, err := usecase.FindAll()
+		permissions, err := usecase.FindAll(context.Background())
 
 		assert.NoError(t, err)
 		assert.Equal(t, expectedPermissions, permissions)
@@ -149,9 +150,9 @@ func TestPermissionUsecase_FindAll(t *testing.T) {
 		mockRepo := new(MockPermissionRepository)
 		usecase := NewPermissionUsecase(mockRepo)
 
-		mockRepo.On("FindAll").Return(nil, errors.New("db error"))
+		mockRepo.On("FindAll", mock.Anything).Return(nil, errors.New("db error"))
 
-		permissions, err := usecase.FindAll()
+		permissions, err := usecase.FindAll(context.Background())
 
 		assert.Error(t, err)
 		assert.Nil(t, permissions)
@@ -166,9 +167,9 @@ func TestPermissionUsecase_FindById(t *testing.T) {
 
 		expectedPermission := &permission_entity.Permission{ID: "123", UserID: "user-1"}
 
-		mockRepo.On("FindByID", "123").Return(expectedPermission, nil)
+		mockRepo.On("FindByID", mock.Anything, "123").Return(expectedPermission, nil)
 
-		permission, err := usecase.FindById("123")
+		permission, err := usecase.FindById(context.Background(), "123")
 
 		assert.NoError(t, err)
 		assert.Equal(t, expectedPermission, permission)
@@ -179,9 +180,9 @@ func TestPermissionUsecase_FindById(t *testing.T) {
 		mockRepo := new(MockPermissionRepository)
 		usecase := NewPermissionUsecase(mockRepo)
 
-		mockRepo.On("FindByID", "123").Return(nil, errors.New("db error"))
+		mockRepo.On("FindByID", mock.Anything, "123").Return(nil, errors.New("db error"))
 
-		permission, err := usecase.FindById("123")
+		permission, err := usecase.FindById(context.Background(), "123")
 
 		assert.Error(t, err)
 		assert.Nil(t, permission)
@@ -226,12 +227,12 @@ func TestPermissionUsecase_Update(t *testing.T) {
 			Description: *input.Description,
 		}
 
-		mockRepo.On("FindByID", id).Return(existingPermission, nil)
+		mockRepo.On("FindByID", mock.Anything, id).Return(existingPermission, nil)
 		// We can't easily match the exact object pointer because it's modified in place,
 		// but we can match the content or just use mock.AnythingOfType
-		mockRepo.On("Update", id, mock.AnythingOfType("*permission_entity.Permission")).Return(updatedPermission, nil)
+		mockRepo.On("Update", mock.Anything, id, mock.AnythingOfType("*permission_entity.Permission")).Return(updatedPermission, nil)
 
-		permission, err := usecase.Update(id, input)
+		permission, err := usecase.Update(context.Background(), id, input)
 
 		assert.NoError(t, err)
 		assert.Equal(t, updatedPermission, permission)
@@ -245,9 +246,9 @@ func TestPermissionUsecase_Update(t *testing.T) {
 		id := "123"
 		input := permission_dtos.UpdatePermissionDto{}
 
-		mockRepo.On("FindByID", id).Return(nil, permission_entity.ErrNotFound)
+		mockRepo.On("FindByID", mock.Anything, id).Return(nil, permission_entity.ErrNotFound)
 
-		permission, err := usecase.Update(id, input)
+		permission, err := usecase.Update(context.Background(), id, input)
 
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, permission_entity.ErrNotFound)
@@ -271,10 +272,10 @@ func TestPermissionUsecase_Update(t *testing.T) {
 			Level:   "user",
 		}
 
-		mockRepo.On("FindByID", id).Return(existingPermission, nil)
-		mockRepo.On("Update", id, mock.AnythingOfType("*permission_entity.Permission")).Return(nil, errors.New("db error"))
+		mockRepo.On("FindByID", mock.Anything, id).Return(existingPermission, nil)
+		mockRepo.On("Update", mock.Anything, id, mock.AnythingOfType("*permission_entity.Permission")).Return(nil, errors.New("db error"))
 
-		permission, err := usecase.Update(id, input)
+		permission, err := usecase.Update(context.Background(), id, input)
 
 		assert.Error(t, err)
 		assert.Nil(t, permission)
@@ -296,9 +297,9 @@ func TestPermissionUsecase_Update(t *testing.T) {
 			Level: "admin",
 		}
 
-		mockRepo.On("FindByID", id).Return(existingPermission, nil)
+		mockRepo.On("FindByID", mock.Anything, id).Return(existingPermission, nil)
 
-		permission, err := usecase.Update(id, input)
+		permission, err := usecase.Update(context.Background(), id, input)
 
 		assert.Error(t, err)
 		assert.Nil(t, permission)
@@ -315,10 +316,10 @@ func TestPermissionUsecase_Delete(t *testing.T) {
 		id := "123"
 
 		// Mock FindByID first as Delete now calls it
-		mockRepo.On("FindByID", id).Return(&permission_entity.Permission{ID: id}, nil)
-		mockRepo.On("Delete", id).Return(nil)
+		mockRepo.On("FindByID", mock.Anything, id).Return(&permission_entity.Permission{ID: id}, nil)
+		mockRepo.On("Delete", mock.Anything, id).Return(nil)
 
-		err := usecase.Delete(id)
+		err := usecase.Delete(context.Background(), id)
 
 		assert.NoError(t, err)
 		mockRepo.AssertExpectations(t)
@@ -330,9 +331,9 @@ func TestPermissionUsecase_Delete(t *testing.T) {
 
 		id := "123"
 
-		mockRepo.On("FindByID", id).Return(nil, permission_entity.ErrNotFound)
+		mockRepo.On("FindByID", mock.Anything, id).Return(nil, permission_entity.ErrNotFound)
 
-		err := usecase.Delete(id)
+		err := usecase.Delete(context.Background(), id)
 
 		assert.Error(t, err)
 		assert.ErrorIs(t, err, permission_entity.ErrNotFound)
@@ -345,10 +346,10 @@ func TestPermissionUsecase_Delete(t *testing.T) {
 
 		id := "123"
 
-		mockRepo.On("FindByID", id).Return(&permission_entity.Permission{ID: id}, nil)
-		mockRepo.On("Delete", id).Return(errors.New("db error"))
+		mockRepo.On("FindByID", mock.Anything, id).Return(&permission_entity.Permission{ID: id}, nil)
+		mockRepo.On("Delete", mock.Anything, id).Return(errors.New("db error"))
 
-		err := usecase.Delete(id)
+		err := usecase.Delete(context.Background(), id)
 
 		assert.Error(t, err)
 		mockRepo.AssertExpectations(t)
@@ -365,9 +366,9 @@ func TestPermissionUsecase_FindPermissionByUserID(t *testing.T) {
 			{ID: "1", UserID: userID},
 		}
 
-		mockRepo.On("FindPermissionByUserID", userID).Return(expectedPermissions, nil)
+		mockRepo.On("FindPermissionByUserID", mock.Anything, userID).Return(expectedPermissions, nil)
 
-		permissions, err := usecase.FindPermissionByUserID(userID)
+		permissions, err := usecase.FindPermissionByUserID(context.Background(), userID)
 
 		assert.NoError(t, err)
 		assert.Equal(t, expectedPermissions, permissions)
@@ -380,9 +381,9 @@ func TestPermissionUsecase_FindPermissionByUserID(t *testing.T) {
 
 		userID := "user-1"
 
-		mockRepo.On("FindPermissionByUserID", userID).Return(nil, errors.New("db error"))
+		mockRepo.On("FindPermissionByUserID", mock.Anything, userID).Return(nil, errors.New("db error"))
 
-		permissions, err := usecase.FindPermissionByUserID(userID)
+		permissions, err := usecase.FindPermissionByUserID(context.Background(), userID)
 
 		assert.Error(t, err)
 		assert.Nil(t, permissions)

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	user_mapper "github.com/williamkoller/system-education/internal/user/application/mapper"
+	user_entity "github.com/williamkoller/system-education/internal/user/domain/entity"
 	portUserHandler "github.com/williamkoller/system-education/internal/user/port/handler"
 	portUserRepository "github.com/williamkoller/system-education/internal/user/port/repository"
 	portUserUsecase "github.com/williamkoller/system-education/internal/user/port/usecase"
@@ -31,9 +32,15 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.usecase.Create(input)
+	user, err := h.usecase.Create(c.Request.Context(), input)
 
 	if err != nil {
+		var validationErr *user_entity.ValidationError
+		if errors.As(err, &validationErr) {
+			c.Status(http.StatusBadRequest)
+			c.Error(err).SetType(gin.ErrorTypePublic)
+			return
+		}
 		if errors.Is(err, portUserRepository.ErrUserAlreadyExists) {
 			c.Status(http.StatusConflict)
 			c.Error(err).SetType(gin.ErrorTypePublic)
@@ -50,7 +57,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 }
 
 func (h *UserHandler) FindAllUsers(c *gin.Context) {
-	users, err := h.usecase.FindAll()
+	users, err := h.usecase.FindAll(c.Request.Context())
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
@@ -63,9 +70,14 @@ func (h *UserHandler) FindAllUsers(c *gin.Context) {
 
 func (h *UserHandler) FindByID(c *gin.Context) {
 	idParams := c.Param("id")
-	user, err := h.usecase.FindByID(idParams)
+	user, err := h.usecase.FindByID(c.Request.Context(), idParams)
 
 	if err != nil {
+		if errors.Is(err, portUserRepository.ErrUserNotFound) {
+			c.Status(http.StatusNotFound)
+			c.Error(err).SetType(gin.ErrorTypePublic)
+			return
+		}
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
 		return
@@ -85,9 +97,20 @@ func (h *UserHandler) Update(c *gin.Context) {
 		return
 	}
 
-	user, err := h.usecase.Update(idParams, input)
+	user, err := h.usecase.Update(c.Request.Context(), idParams, input)
 
 	if err != nil {
+		if errors.Is(err, portUserRepository.ErrUserNotFound) {
+			c.Status(http.StatusNotFound)
+			c.Error(err).SetType(gin.ErrorTypePublic)
+			return
+		}
+		var validationErr *user_entity.ValidationError
+		if errors.As(err, &validationErr) {
+			c.Status(http.StatusBadRequest)
+			c.Error(err).SetType(gin.ErrorTypePublic)
+			return
+		}
 		c.Status(http.StatusInternalServerError)
 		c.Error(err).SetType(gin.ErrorTypePublic)
 		return
@@ -99,9 +122,13 @@ func (h *UserHandler) Update(c *gin.Context) {
 
 func (h *UserHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
-
-	err := h.usecase.Delete(id)
+	err := h.usecase.Delete(c.Request.Context(), id)
 	if err != nil {
+		if errors.Is(err, portUserRepository.ErrUserNotFound) {
+			c.Status(http.StatusNotFound)
+			c.Error(err).SetType(gin.ErrorTypePublic)
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "failed to delete user",
 		})

@@ -1,6 +1,8 @@
 package school_usecase
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	school_entity "github.com/williamkoller/system-education/internal/school/domain/entity"
 	port_school_repository "github.com/williamkoller/system-education/internal/school/port/repository"
@@ -20,7 +22,7 @@ func NewSchoolUseCase(repo port_school_repository.SchoolRepository) *SchoolUseCa
 
 var _ port_school_usecase.SchoolUseCase = &SchoolUseCase{}
 
-func (s *SchoolUseCase) Create(input school_dtos.AddSchoolDto) (*school_entity.School, error) {
+func (s *SchoolUseCase) Create(ctx context.Context, input school_dtos.AddSchoolDto) (*school_entity.School, error) {
 	school, err := school_entity.NewSchool(&school_entity.School{
 		ID:          uuid.New().String(),
 		Name:        input.Name,
@@ -40,55 +42,61 @@ func (s *SchoolUseCase) Create(input school_dtos.AddSchoolDto) (*school_entity.S
 		return nil, err
 	}
 
-	school, err = s.repo.Save(school)
+	school, err = s.repo.Save(ctx, school)
 	if err != nil {
 		return nil, err
 	}
 	return school, nil
 }
 
-func (s *SchoolUseCase) FindAll() ([]*school_entity.School, error) {
-	schools, err := s.repo.FindAll()
+func (s *SchoolUseCase) FindAll(ctx context.Context) ([]*school_entity.School, error) {
+	schools, err := s.repo.FindAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return schools, nil
 }
 
-func (s *SchoolUseCase) FindById(id string) (*school_entity.School, error) {
-	school, err := s.repo.FindById(id)
+func (s *SchoolUseCase) FindById(ctx context.Context, id string) (*school_entity.School, error) {
+	school, err := s.repo.FindById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	return school, nil
 }
 
-func (s *SchoolUseCase) Update(id string, update school_dtos.UpdateSchoolDto) (*school_entity.School, error) {
-	schoolFound, err := s.repo.FindById(id)
+func (s *SchoolUseCase) Update(ctx context.Context, id string, update school_dtos.UpdateSchoolDto) (*school_entity.School, error) {
+	schoolFound, err := s.repo.FindById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	schoolFound.Name = update.Name
-	schoolFound.Code = update.Code
-	schoolFound.Address = update.Address
-	schoolFound.City = update.City
-	schoolFound.State = update.State
-	schoolFound.ZipCode = update.ZipCode
-	schoolFound.Country = update.Country
-	schoolFound.PhoneNumber = update.PhoneNumber
-	schoolFound.Email = update.Email
-	schoolFound.IsActive = update.IsActive
-	schoolFound.Description = update.Description
+	err = schoolFound.UpdateSchool(
+		update.Name,
+		update.Code,
+		update.Address,
+		update.City,
+		update.State,
+		update.ZipCode,
+		update.Country,
+		update.PhoneNumber,
+		update.Email,
+		update.IsActive,
+		update.Description,
+	)
 
-	school, err := s.repo.Update(id, schoolFound)
+	if err != nil {
+		return nil, err
+	}
+
+	school, err := s.repo.Update(ctx, id, schoolFound)
 	if err != nil {
 		return nil, err
 	}
 	return school, nil
 }
 
-func (s *SchoolUseCase) Delete(id string) error {
-	err := s.repo.Delete(id)
+func (s *SchoolUseCase) Delete(ctx context.Context, id string) error {
+	err := s.repo.Delete(ctx, id)
 	if err != nil {
 		return err
 	}

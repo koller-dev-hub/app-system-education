@@ -5,14 +5,16 @@ import (
 
 	"github.com/lib/pq"
 	permission_entity "github.com/williamkoller/system-education/internal/permission/domain/entity"
+	user_model "github.com/williamkoller/system-education/internal/user/infra/db/model"
 	"gorm.io/gorm"
 )
 
 type Permission struct {
 	ID          string `gorm:"primaryKey;type:uuid"`
 	UserID      string
-	Modules     pq.StringArray `gorm:"type:text[]"`
-	Actions     pq.StringArray `gorm:"type:text[]"`
+	User        *user_model.User `gorm:"foreignKey:UserID"`
+	Modules     pq.StringArray   `gorm:"type:text[]"`
+	Actions     pq.StringArray   `gorm:"type:text[]"`
 	Level       string
 	Description string
 	CreatedAt   time.Time

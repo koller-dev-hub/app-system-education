@@ -1,6 +1,7 @@
 package permission_repository
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -42,7 +43,7 @@ func (s *PermissionGormRepositorySuite) TestCreate() {
 		Description: "test permission",
 	}
 
-	createdPermission, err := s.repository.Save(permission)
+	createdPermission, err := s.repository.Save(context.Background(), permission)
 
 	s.NoError(err)
 	s.NotNil(createdPermission)
@@ -67,7 +68,7 @@ func (s *PermissionGormRepositorySuite) TestCreate_Error() {
 	sqlDB, _ := s.db.DB()
 	sqlDB.Close()
 
-	createdPermission, err := s.repository.Save(permission)
+	createdPermission, err := s.repository.Save(context.Background(), permission)
 
 	s.Error(err)
 	s.Nil(createdPermission)
@@ -82,9 +83,9 @@ func (s *PermissionGormRepositorySuite) TestFindByID() {
 		Level:       "admin",
 		Description: "test permission",
 	}
-	created, _ := s.repository.Save(permission)
+	created, _ := s.repository.Save(context.Background(), permission)
 
-	foundPermission, err := s.repository.FindByID(created.ID)
+	foundPermission, err := s.repository.FindByID(context.Background(), created.ID)
 
 	s.NoError(err)
 	s.NotNil(foundPermission)
@@ -93,7 +94,7 @@ func (s *PermissionGormRepositorySuite) TestFindByID() {
 }
 
 func (s *PermissionGormRepositorySuite) TestFindByID_Error() {
-	foundPermission, err := s.repository.FindByID("some-id")
+	foundPermission, err := s.repository.FindByID(context.Background(), "some-id")
 
 	s.Error(err)
 	s.Equal(permission_entity.ErrNotFound, err)
@@ -104,7 +105,7 @@ func (s *PermissionGormRepositorySuite) TestFindByID_DBError() {
 	sqlDB, _ := s.db.DB()
 	sqlDB.Close()
 
-	foundPermission, err := s.repository.FindByID("some-id")
+	foundPermission, err := s.repository.FindByID(context.Background(), "some-id")
 
 	s.Error(err)
 	s.NotEqual(permission_entity.ErrNotFound, err)
@@ -114,10 +115,10 @@ func (s *PermissionGormRepositorySuite) TestFindByID_DBError() {
 func (s *PermissionGormRepositorySuite) TestFindAll() {
 	permission1 := &permission_entity.Permission{ID: "perm-4", UserID: "user-1"}
 	permission2 := &permission_entity.Permission{ID: "perm-5", UserID: "user-2"}
-	s.repository.Save(permission1)
-	s.repository.Save(permission2)
+	s.repository.Save(context.Background(), permission1)
+	s.repository.Save(context.Background(), permission2)
 
-	permissions, err := s.repository.FindAll()
+	permissions, err := s.repository.FindAll(context.Background())
 
 	s.NoError(err)
 	s.Len(permissions, 2)
@@ -127,7 +128,7 @@ func (s *PermissionGormRepositorySuite) TestFindAll_Error() {
 	sqlDB, _ := s.db.DB()
 	sqlDB.Close()
 
-	permissions, err := s.repository.FindAll()
+	permissions, err := s.repository.FindAll(context.Background())
 
 	s.Error(err)
 	s.Nil(permissions)
@@ -142,16 +143,16 @@ func (s *PermissionGormRepositorySuite) TestUpdate() {
 		Level:       "admin",
 		Description: "test permission",
 	}
-	created, _ := s.repository.Save(permission)
+	created, _ := s.repository.Save(context.Background(), permission)
 
 	created.Description = "updated permission"
-	updatedPermission, err := s.repository.Update(created.ID, created)
+	updatedPermission, err := s.repository.Update(context.Background(), created.ID, created)
 
 	s.NoError(err)
 	s.NotNil(updatedPermission)
 	s.Equal("updated permission", updatedPermission.Description)
 
-	found, _ := s.repository.FindByID(created.ID)
+	found, _ := s.repository.FindByID(context.Background(), created.ID)
 	s.Equal("updated permission", found.Description)
 }
 
@@ -161,7 +162,7 @@ func (s *PermissionGormRepositorySuite) TestUpdate_Error() {
 		UserID: "user-123",
 	}
 
-	updatedPermission, err := s.repository.Update(permission.ID, permission)
+	updatedPermission, err := s.repository.Update(context.Background(), permission.ID, permission)
 
 	s.Error(err)
 	s.Equal(permission_entity.ErrNotFound, err)
@@ -173,12 +174,12 @@ func (s *PermissionGormRepositorySuite) TestUpdate_DBError() {
 		ID:     "perm-7",
 		UserID: "user-123",
 	}
-	created, _ := s.repository.Save(permission)
+	created, _ := s.repository.Save(context.Background(), permission)
 
 	sqlDB, _ := s.db.DB()
 	sqlDB.Close()
 
-	updatedPermission, err := s.repository.Update(created.ID, created)
+	updatedPermission, err := s.repository.Update(context.Background(), created.ID, created)
 
 	s.Error(err)
 	s.NotEqual(permission_entity.ErrNotFound, err)
@@ -187,19 +188,19 @@ func (s *PermissionGormRepositorySuite) TestUpdate_DBError() {
 
 func (s *PermissionGormRepositorySuite) TestDelete() {
 	permission := &permission_entity.Permission{ID: "perm-8", UserID: "user-123"}
-	created, _ := s.repository.Save(permission)
+	created, _ := s.repository.Save(context.Background(), permission)
 
-	err := s.repository.Delete(created.ID)
+	err := s.repository.Delete(context.Background(), created.ID)
 
 	s.NoError(err)
 
-	found, err := s.repository.FindByID(created.ID)
+	found, err := s.repository.FindByID(context.Background(), created.ID)
 	s.Error(err)
 	s.Nil(found)
 }
 
 func (s *PermissionGormRepositorySuite) TestDelete_Error() {
-	err := s.repository.Delete("some-id")
+	err := s.repository.Delete(context.Background(), "some-id")
 
 	s.Error(err)
 	s.Equal(permission_entity.ErrNotFound, err)
@@ -209,7 +210,7 @@ func (s *PermissionGormRepositorySuite) TestDelete_DBError() {
 	sqlDB, _ := s.db.DB()
 	sqlDB.Close()
 
-	err := s.repository.Delete("some-id")
+	err := s.repository.Delete(context.Background(), "some-id")
 
 	s.Error(err)
 	s.NotEqual(permission_entity.ErrNotFound, err)
@@ -219,11 +220,11 @@ func (s *PermissionGormRepositorySuite) TestFindPermissionByUserID() {
 	permission1 := &permission_entity.Permission{ID: "perm-9", UserID: "user-123"}
 	permission2 := &permission_entity.Permission{ID: "perm-10", UserID: "user-123"}
 	permission3 := &permission_entity.Permission{ID: "perm-11", UserID: "user-456"}
-	s.repository.Save(permission1)
-	s.repository.Save(permission2)
-	s.repository.Save(permission3)
+	s.repository.Save(context.Background(), permission1)
+	s.repository.Save(context.Background(), permission2)
+	s.repository.Save(context.Background(), permission3)
 
-	permissions, err := s.repository.FindPermissionByUserID("user-123")
+	permissions, err := s.repository.FindPermissionByUserID(context.Background(), "user-123")
 
 	s.NoError(err)
 	s.Len(permissions, 2)
@@ -233,7 +234,7 @@ func (s *PermissionGormRepositorySuite) TestFindPermissionByUserID_Error() {
 	sqlDB, _ := s.db.DB()
 	sqlDB.Close()
 
-	permissions, err := s.repository.FindPermissionByUserID("user-123")
+	permissions, err := s.repository.FindPermissionByUserID(context.Background(), "user-123")
 
 	s.Error(err)
 	s.Nil(permissions)

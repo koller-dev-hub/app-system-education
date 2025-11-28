@@ -7,7 +7,6 @@ test:
 
 cover:
 	@go test -buildvcs=false -covermode=atomic \
-		-coverpkg=$(shell go list ./... | grep -vE '($(IGNORED_DIRS))' | tr '\n' ',') \
 		-coverprofile=coverage.out $(PKGS) 2>/dev/null
 	@go tool cover -func=coverage.out
 	@go tool cover -html=coverage.out -o coverage.html

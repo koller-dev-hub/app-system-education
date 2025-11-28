@@ -37,7 +37,6 @@ func (m *PermissionMiddleware) ModuleAccessMiddleware(requiredModules []string, 
 			}
 		}
 
-		// Check if user has at least one required module
 		hasModule := false
 		for _, required := range requiredModules {
 			for _, userMod := range userModules {
@@ -56,7 +55,6 @@ func (m *PermissionMiddleware) ModuleAccessMiddleware(requiredModules []string, 
 			return
 		}
 
-		// Validate actions (if required)
 		if len(requiredActions) > 0 {
 			actionsInterface, ok := c.Get("actions")
 			if !ok {
@@ -77,7 +75,6 @@ func (m *PermissionMiddleware) ModuleAccessMiddleware(requiredModules []string, 
 				}
 			}
 
-			// Check if user has at least one required action
 			hasAction := false
 			for _, required := range requiredActions {
 				for _, userAct := range userActions {
